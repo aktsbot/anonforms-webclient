@@ -8,7 +8,7 @@ function Header(props) {
 
   return (
     <>
-      <nav className="nav" tabindex="-1" onclick="this.focus()">
+      <nav className="nav" tabIndex="-1">
         <div className="container">
           <Link to="/" className="pagename">
             Dashboard
@@ -17,7 +17,7 @@ function Header(props) {
             New form
           </Link>
           <Link to="/account">Account</Link>
-          <button onClick={handleLogout} href="#">
+          <button onClick={handleLogout} href="#" className="nav-btn">
             Logout
           </button>
         </div>

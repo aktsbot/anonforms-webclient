@@ -4,7 +4,7 @@ import Page from "./Page";
 function Dashboard() {
   // TODO: add state and bind view
   return (
-    <Page title="Your dashboard">
+    <Page title="Your dashboard" showHeader={true}>
       <h1 className="head-underline">Dashboard</h1>
       <table className="table">
         <thead>
