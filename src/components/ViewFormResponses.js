@@ -4,9 +4,9 @@ import Page from "./Page";
 function ViewFormResponses() {
   return (
     <Page title="IPHACON Registration form responses" showHeader={true}>
-      <h1 class="head-underline">IPHACON Registration form responses</h1>
+      <h1 className="head-underline">IPHACON Registration form responses</h1>
 
-      <table class="table">
+      <table className="table">
         <thead>
           <tr>
             <th>#</th>
@@ -39,14 +39,14 @@ function ViewFormResponses() {
         </tbody>
       </table>
 
-      <div class="row">
-        <div class="col c4">
+      <div className="row">
+        <div className="col c4">
           <a href="/">&lt;Prev</a>
           Page 1 of 3<a href="/">Next&gt;</a>
         </div>
-        <div class="col c4">343 total responses</div>
-        <div class="col c4">
-          <button class="btn btn-sm btn-a">
+        <div className="col c4">343 total responses</div>
+        <div className="col c4">
+          <button className="btn btn-sm btn-a">
             Download responses as csv file
           </button>
         </div>
