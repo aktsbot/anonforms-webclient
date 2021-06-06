@@ -15,6 +15,10 @@ const __storagePut = ({ key, value }) => {
   return;
 };
 
+const __storageDel = (key) => {
+  return localStorage.removeItem(key);
+};
+
 export const getAuthorToken = () => __storageGet(__FORM_AUTHOR_TOKEN_KEY__);
 
 export const putAuthorToken = (token) => {
@@ -25,6 +29,8 @@ export const putAuthorToken = (token) => {
   return;
 };
 
+export const delAuthorToken = () => __storageDel(__FORM_AUTHOR_TOKEN_KEY__);
+
 export const getAppUsername = () => __storageGet(__APP_USERNAME_KEY__);
 
 export const putAppUsername = (name) => {
@@ -34,3 +40,5 @@ export const putAppUsername = (name) => {
   });
   return;
 };
+
+export const delAppUsername = () => __storageDel(__APP_USERNAME_KEY__);

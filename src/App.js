@@ -1,10 +1,16 @@
+import { useEffect } from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { useImmerReducer } from "use-immer";
 
 import PrivateRoute from "./PrivateRoute";
 
 // services
-import { getAppUsername, getAuthorToken } from "./services/storage";
+import {
+  getAppUsername,
+  getAuthorToken,
+  putAuthorToken,
+  delAuthorToken,
+} from "./services/storage";
 
 // context
 import StateContext from "./StateContext";
@@ -46,6 +52,14 @@ function App() {
   };
 
   const [state, dispatch] = useImmerReducer(appReducer, appState);
+
+  useEffect(() => {
+    if (state.isLoggedIn && state.formAuthor.token) {
+      putAuthorToken(state.formAuthor.token);
+    } else {
+      delAuthorToken();
+    }
+  }, [state.formAuthor.token, state.isLoggedIn]);
 
   return (
     <StateContext.Provider value={state}>

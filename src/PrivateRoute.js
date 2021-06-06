@@ -15,7 +15,7 @@ function PrivateRoute({ component: Component, ...rest }) {
       {...rest}
       render={({ location }) => {
         return appState.isLoggedIn ? (
-          Component
+          <Component />
         ) : (
           <Redirect
             to={{
