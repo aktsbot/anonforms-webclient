@@ -22,7 +22,7 @@ function Header(props) {
           </button>
         </div>
       </nav>
-      <button className="btn-close btn btn-sm">×</button>
+      <button className="btn-close btn btn-sm">&times;</button>
     </>
   );
 }

@@ -82,3 +82,33 @@ label {
   position: relative;
   top: -1px;
 }
+
+/* https://www.w3schools.com/howto/howto_js_alert.asp */
+.alert {
+  padding: 5px;
+  color: white;
+  background-color: #888
+}
+
+.alert-danger {
+  background-color: #d55;
+}
+
+.alert-success {
+  background-color: #3c5;
+}
+
+.closebtn {
+  margin-left: 15px;
+  font-size: 18px;
+  color: white;
+  font-weight: bold;
+  float: right;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.closebtn:hover {
+  color: black;
+}
+

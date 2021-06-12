@@ -25,6 +25,7 @@ import Dashboard from "./components/Dashboard";
 import NewForm from "./components/NewForm";
 import ViewFormResponses from "./components/ViewFormResponses";
 import NotFound from "./components/NotFound";
+import AlertMessages from "./components/AlertMessages";
 
 function App() {
   const appState = {
@@ -39,7 +40,22 @@ function App() {
     // only for form authors
     isLoggedIn: Boolean(getAuthorToken()),
     // for actions that users do in the app like submitting forms, logins etc.
-    flashMessages: [],
+    alertMessages: [
+      {
+        heading: "Info",
+        message: "This is just an info message",
+      },
+      {
+        type: "danger",
+        heading: "Error",
+        message: "Oh no! It failed",
+      },
+      {
+        type: "success",
+        heading: "Success",
+        message: "Hurray! It worked.",
+      },
+    ],
   };
 
   const appReducer = (draft, action) => {
@@ -48,12 +64,42 @@ function App() {
         draft.formAuthor = action.data;
         draft.isLoggedIn = true;
         return;
+      case "logout":
+        draft.isLoggedIn = false;
+        return;
+      case "alertMessage":
+        draft.alertMessages.push({
+          type: action.type,
+          messsage: action.value,
+          heading: action.heading || null,
+        });
+        return;
+      case "alertMessageClear":
+        if (action.value === -1) {
+          // remove first message in list if -1 is passed
+          draft.alertMessages.shift();
+        } else {
+          // remove specific message
+          draft.alertMessages.splice(action.value, 1);
+        }
+        return;
       default:
         return;
     }
   };
 
   const [state, dispatch] = useImmerReducer(appReducer, appState);
+
+  // clear alert messages one by one after 2 second delay
+  useEffect(() => {
+    if (state.alertMessages.length) {
+      const delay = setTimeout(() => {
+        dispatch({ type: "alertMessageClear", value: -1 });
+      }, 2000);
+
+      return () => clearTimeout(delay);
+    }
+  }, [state.alertMessages, dispatch]);
 
   useEffect(() => {
     if (state.isLoggedIn && state.formAuthor.token) {
@@ -90,6 +136,7 @@ function App() {
     <StateContext.Provider value={state}>
       <DispatchContext.Provider value={dispatch}>
         <BrowserRouter>
+          <AlertMessages messages={state.alertMessages} />
           <Switch>
             <Route path="/auth" exact component={Auth} />
             <PrivateRoute path="/dashboard" exact component={Dashboard} />
