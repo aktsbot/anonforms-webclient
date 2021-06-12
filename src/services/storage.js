@@ -11,7 +11,11 @@ const __storageGet = (key) => {
 const __storagePut = ({ key, value }) => {
   // even of we pass a number or any other type for "value"
   // stringify will convert it to string
-  localStorage.setItem(key, JSON.stringify(value));
+  let val = value;
+  if (typeof value === "object") {
+    val = JSON.stringify(val);
+  }
+  localStorage.setItem(key, val);
   return;
 };
 

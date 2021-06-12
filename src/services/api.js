@@ -11,7 +11,13 @@ const http = axios.create({
     "Content-Type": "application/json",
   },
 });
+
 export default http;
+// this is called to set the auth token after login
+export const setAuthHeader = ({ token }) => {
+  http.defaults.headers.common = { "x-af-auth": `${token}` };
+  return;
+};
 
 // all api endpoint methods are set here as the entire app is tiny
 
@@ -29,4 +35,16 @@ export const apiSession = ({ email, auth_code, req_cancel_token }) => {
       { cancelToken: req_cancel_token }
     )
     .then((res) => res.data);
+};
+
+// gets user info for a session
+export const apiGetUser = ({ req_cancel_token }) => {
+  return http
+    .get("/user", { cancelToken: req_cancel_token })
+    .then((res) => res.data);
+};
+
+// logout - devalidates a session token
+export const apiLogout = ({ req_cancel_token }) => {
+  return http.post("/user/logout", {}, { cancelToken: req_cancel_token });
 };

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { useImmerReducer } from "use-immer";
+import axios from "axios";
 
 import PrivateRoute from "./PrivateRoute";
 
@@ -11,6 +12,7 @@ import {
   putAuthorToken,
   delAuthorToken,
 } from "./services/storage";
+import { apiGetUser, apiLogout, setAuthHeader } from "./services/api";
 
 // context
 import StateContext from "./StateContext";
@@ -55,11 +57,34 @@ function App() {
 
   useEffect(() => {
     if (state.isLoggedIn && state.formAuthor.token) {
+      setAuthHeader({ token: state.formAuthor.token });
       putAuthorToken(state.formAuthor.token);
     } else {
       delAuthorToken();
+      apiLogout();
     }
   }, [state.formAuthor.token, state.isLoggedIn]);
+
+  // on first render check token validity, if token present
+  useEffect(() => {
+    const request = axios.CancelToken.source();
+    async function getUser() {
+      try {
+        const response = await apiGetUser({ req_cancel_token: request.token });
+        console.log(response.data);
+      } catch (e) {
+        // TODO: show alert message
+        console.log(e);
+        console.log("Exception in sending user info fetch request");
+      }
+    }
+
+    if (state.isLoggedIn && state.formAuthor.token) {
+      getUser();
+    }
+    return () => request.cancel();
+    // eslint-disable-next-line
+  }, []);
 
   return (
     <StateContext.Provider value={state}>
