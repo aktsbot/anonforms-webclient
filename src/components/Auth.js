@@ -1,13 +1,17 @@
 import React, { useContext, useEffect } from "react";
 import { useImmerReducer } from "use-immer";
 import axios from "axios";
+import { Redirect } from "react-router-dom";
 
 import Page from "./Page";
 import DispatchContext from "../DispatchContext";
+import StateContext from "../StateContext";
 import { apiAuth, apiSession } from "../services/api";
+import { getAxiosError } from "../services/utils";
 
 function Auth() {
   const appDispatch = useContext(DispatchContext);
+  const appState = useContext(StateContext);
 
   const initialState = {
     email: {
@@ -40,6 +44,13 @@ function Auth() {
         draft.isBtnDisabled = true;
         draft.btnText = "Please wait ...";
         return;
+      case "submitEmailError":
+        draft.email.hasErrors = true;
+        draft.email.submitCount = 0;
+        draft.isEmailDisabled = false;
+        draft.isBtnDisabled = false;
+        draft.btnText = "Send secret code";
+        return;
       case "emailSent":
         draft.isEmailSent = true;
         draft.btnText = "Continue";
@@ -54,6 +65,12 @@ function Auth() {
         draft.authCode.submitCount = draft.email.submitCount + 1;
         draft.isBtnDisabled = true;
         draft.btnText = "Please wait ...";
+        return;
+      case "submitAuthCodeError":
+        draft.authCode.hasErrors = true;
+        draft.authCode.submitCount = 0;
+        draft.isBtnDisabled = false;
+        draft.btnText = "Continue";
         return;
       default:
         return;
@@ -72,9 +89,15 @@ function Auth() {
         });
         dispatch({ type: "emailSent" });
       } catch (e) {
-        // TODO: show alert message
-        console.log(e);
-        console.log("Exception in sending auth request");
+        dispatch({
+          type: "submitEmailError",
+        });
+        appDispatch({
+          type: "alertMessage",
+          value: getAxiosError(e),
+          message_type: "danger",
+          heading: "Error",
+        });
       }
     }
 
@@ -82,7 +105,7 @@ function Auth() {
       sendAuth();
     }
     return () => request.cancel();
-  }, [state.email.submitCount, state.email.value, dispatch]);
+  }, [state.email.submitCount, state.email.value, dispatch, appDispatch]);
 
   useEffect(() => {
     const request = axios.CancelToken.source();
@@ -94,10 +117,22 @@ function Auth() {
           req_cancel_token: request.token,
         });
         appDispatch({ type: "login", data: response.data });
+        appDispatch({
+          type: "alertMessage",
+          value: "Let's start building forms",
+          message_type: "success",
+          heading: "Nice!",
+        });
       } catch (e) {
-        // TODO: show alert message
-        console.log(e);
-        console.log("Exception in sending session request");
+        dispatch({
+          type: "submitAuthCodeError",
+        });
+        appDispatch({
+          type: "alertMessage",
+          value: getAxiosError(e),
+          message_type: "danger",
+          heading: "Error",
+        });
       }
     }
 
@@ -129,7 +164,9 @@ function Auth() {
     return;
   };
 
-  return (
+  return appState.isLoggedIn ? (
+    <Redirect to="/dashboard" />
+  ) : (
     <Page title="Authentication">
       <h2>Enter your email to authenticate</h2>
       <div className="row">

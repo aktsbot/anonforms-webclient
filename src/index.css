@@ -81,6 +81,7 @@ label {
   padding-right: 1em;
   position: relative;
   top: -1px;
+  cursor: pointer;
 }
 
 /* https://www.w3schools.com/howto/howto_js_alert.asp */

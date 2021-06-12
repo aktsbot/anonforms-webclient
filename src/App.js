@@ -12,7 +12,7 @@ import {
   putAuthorToken,
   delAuthorToken,
 } from "./services/storage";
-import { apiGetUser, setAuthHeader } from "./services/api";
+import { apiGetUser, setAuthHeader, apiLogout } from "./services/api";
 import { getAxiosError } from "./services/utils";
 
 // context
@@ -33,6 +33,7 @@ function App() {
     // the person who can create forms and can view dashboard
     formAuthor: {
       token: getAuthorToken(),
+      user: "", // will be got back from our api
     },
     // normal users, who answer forms
     formUser: {
@@ -52,6 +53,9 @@ function App() {
         return;
       case "logout":
         draft.isLoggedIn = false;
+        return;
+      case "formAuthor":
+        draft.formAuthor.user = action.value;
         return;
       case "alertMessage":
         draft.alertMessages.push({
@@ -88,13 +92,30 @@ function App() {
   }, [state.alertMessages, dispatch]);
 
   useEffect(() => {
+    async function doLogout() {
+      try {
+        await apiLogout();
+        dispatch({
+          type: "alertMessage",
+          value: "You've successfully logged out",
+          message_type: "success",
+          heading: "Bye!",
+        });
+      } catch (e) {
+        // TODO: what to do here?
+        console.log("Exception in logout");
+      }
+    }
     if (state.isLoggedIn && state.formAuthor.token) {
       setAuthHeader({ token: state.formAuthor.token });
       putAuthorToken(state.formAuthor.token);
     } else {
+      if (state.formAuthor.token) {
+        doLogout();
+      }
       delAuthorToken();
     }
-  }, [state.formAuthor.token, state.isLoggedIn]);
+  }, [state.formAuthor.token, state.isLoggedIn, dispatch]);
 
   // on first render check token validity, if token present
   useEffect(() => {
@@ -102,7 +123,8 @@ function App() {
     async function getUser() {
       try {
         const response = await apiGetUser({ req_cancel_token: request.token });
-        console.log(response.data);
+        //console.log(response.data);
+        dispatch({ type: "formAuthor", value: response.data.user });
       } catch (e) {
         dispatch({
           type: "alertMessage",

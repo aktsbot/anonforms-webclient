@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 
+import DispatchContext from "../DispatchContext";
+
 function Header(props) {
+  const appDispatch = useContext(DispatchContext);
+
   function handleLogout() {
+    appDispatch({ type: "logout" });
     return;
   }
 
