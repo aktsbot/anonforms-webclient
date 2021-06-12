@@ -20,6 +20,7 @@ import StateContext from "./StateContext";
 import DispatchContext from "./DispatchContext";
 
 // all components
+import Index from "./components/Index";
 import Auth from "./components/Auth";
 import ViewForm from "./components/ViewForm";
 import Dashboard from "./components/Dashboard";
@@ -157,6 +158,7 @@ function App() {
               component={ViewFormResponses}
             />
             <Route path="/:form_uri" exact component={ViewForm} />
+            <Route path="/" exact component={Index} />
             <Route component={NotFound} />
           </Switch>
         </BrowserRouter>
