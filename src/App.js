@@ -12,7 +12,8 @@ import {
   putAuthorToken,
   delAuthorToken,
 } from "./services/storage";
-import { apiGetUser, apiLogout, setAuthHeader } from "./services/api";
+import { apiGetUser, setAuthHeader } from "./services/api";
+import { getAxiosError } from "./services/utils";
 
 // context
 import StateContext from "./StateContext";
@@ -40,22 +41,7 @@ function App() {
     // only for form authors
     isLoggedIn: Boolean(getAuthorToken()),
     // for actions that users do in the app like submitting forms, logins etc.
-    alertMessages: [
-      {
-        heading: "Info",
-        message: "This is just an info message",
-      },
-      {
-        type: "danger",
-        heading: "Error",
-        message: "Oh no! It failed",
-      },
-      {
-        type: "success",
-        heading: "Success",
-        message: "Hurray! It worked.",
-      },
-    ],
+    alertMessages: [],
   };
 
   const appReducer = (draft, action) => {
@@ -69,8 +55,8 @@ function App() {
         return;
       case "alertMessage":
         draft.alertMessages.push({
-          type: action.type,
-          messsage: action.value,
+          type: action.message_type,
+          message: action.value,
           heading: action.heading || null,
         });
         return;
@@ -90,12 +76,12 @@ function App() {
 
   const [state, dispatch] = useImmerReducer(appReducer, appState);
 
-  // clear alert messages one by one after 2 second delay
+  // clear alert messages one by one after 3 second delay
   useEffect(() => {
     if (state.alertMessages.length) {
       const delay = setTimeout(() => {
         dispatch({ type: "alertMessageClear", value: -1 });
-      }, 2000);
+      }, 3000);
 
       return () => clearTimeout(delay);
     }
@@ -107,7 +93,6 @@ function App() {
       putAuthorToken(state.formAuthor.token);
     } else {
       delAuthorToken();
-      apiLogout();
     }
   }, [state.formAuthor.token, state.isLoggedIn]);
 
@@ -119,9 +104,12 @@ function App() {
         const response = await apiGetUser({ req_cancel_token: request.token });
         console.log(response.data);
       } catch (e) {
-        // TODO: show alert message
-        console.log(e);
-        console.log("Exception in sending user info fetch request");
+        dispatch({
+          type: "alertMessage",
+          value: getAxiosError(e),
+          message_type: "danger",
+          heading: "Request error",
+        });
       }
     }
 

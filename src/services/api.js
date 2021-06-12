@@ -45,6 +45,6 @@ export const apiGetUser = ({ req_cancel_token }) => {
 };
 
 // logout - devalidates a session token
-export const apiLogout = ({ req_cancel_token }) => {
-  return http.post("/user/logout", {}, { cancelToken: req_cancel_token });
+export const apiLogout = () => {
+  return http.post("/user/logout", {});
 };
