@@ -16,6 +16,11 @@
   margin-bottom: 10px;
 }
 
+.m-y-sm {
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
 .m-t-0 {
   margin-top: 0 !important;
 }
@@ -72,6 +77,10 @@ label {
   background: #eee;
 	padding: 10px;
   margin-top: 1em;
+}
+
+.small {
+  font-size: small;
 }
 
 .nav-btn {

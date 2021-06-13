@@ -48,7 +48,12 @@ function Index() {
           <div className="col c4">
             <h2>Free and open source</h2>
             <ul className="text-left">
-              <li>Built with React, NodeJS and MongoDB.</li>
+              <li>
+                Built with <a href="https://reactjs.org/">React</a>,{" "}
+                <a href="//mincss.com/">mincss</a>,{" "}
+                <a href="https://nodejs.org">NodeJS</a> and{" "}
+                <a href="https://www.mongodb.com/">MongoDB</a>.
+              </li>
               <li>
                 Check out the source code on{" "}
                 <a href="//github.com/aktsbot/anonforms-server">github.com</a>.
@@ -57,10 +62,21 @@ function Index() {
           </div>
         </div>
 
-        <div className="row text-center m-t-sm m-b-sm">
+        <div className="row text-center m-y-sm">
           <Link to="/auth" className="btn btn-b smooth">
             Get started
           </Link>
+        </div>
+
+        <div className="row text-center m-y-sm small">
+          Logo by{" "}
+          <a href="https://www.freepik.com" title="Freepik">
+            Freepik
+          </a>{" "}
+          from{" "}
+          <a href="https://www.flaticon.com/" title="Flaticon">
+            www.flaticon.com
+          </a>
         </div>
       </div>
     </Page>
