@@ -37,6 +37,10 @@
   text-align: right;
 }
 
+.text-left {
+  text-align: left;
+}
+
 input, textarea, select {
   box-sizing: border-box;
 }
