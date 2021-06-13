@@ -48,3 +48,17 @@ export const apiGetUser = ({ req_cancel_token }) => {
 export const apiLogout = () => {
   return http.post("/user/logout", {});
 };
+
+// forms apis
+// gets all forms made by a form author
+export const apiGetForms = ({ page, req_cancel_token }) => {
+  const params = {
+    page: 1,
+  };
+  if (page) {
+    params.page = page;
+  }
+  return http
+    .get("/form", { params }, { cancelToken: req_cancel_token })
+    .then((res) => res.data);
+};

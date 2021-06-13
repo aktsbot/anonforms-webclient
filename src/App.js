@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect, Suspense } from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { useImmerReducer } from "use-immer";
 import axios from "axios";
@@ -20,14 +20,17 @@ import StateContext from "./StateContext";
 import DispatchContext from "./DispatchContext";
 
 // all components
+import Loading from "./components/Loading";
 import Index from "./components/Index";
 import Auth from "./components/Auth";
 import ViewForm from "./components/ViewForm";
-import Dashboard from "./components/Dashboard";
-import NewForm from "./components/NewForm";
-import ViewFormResponses from "./components/ViewFormResponses";
 import NotFound from "./components/NotFound";
 import AlertMessages from "./components/AlertMessages";
+const Dashboard = React.lazy(() => import("./components/Dashboard"));
+const NewForm = React.lazy(() => import("./components/NewForm"));
+const ViewFormResponses = React.lazy(() =>
+  import("./components/ViewFormResponses")
+);
 
 function App() {
   const appState = {
@@ -93,33 +96,6 @@ function App() {
   }, [state.alertMessages, dispatch]);
 
   useEffect(() => {
-    async function doLogout() {
-      try {
-        await apiLogout();
-        dispatch({
-          type: "alertMessage",
-          value: "You've successfully logged out",
-          message_type: "success",
-          heading: "Bye!",
-        });
-      } catch (e) {
-        // TODO: what to do here?
-        console.log("Exception in logout");
-      }
-    }
-    if (state.isLoggedIn && state.formAuthor.token) {
-      setAuthHeader({ token: state.formAuthor.token });
-      putAuthorToken(state.formAuthor.token);
-    } else {
-      if (state.formAuthor.token) {
-        doLogout();
-      }
-      delAuthorToken();
-    }
-  }, [state.formAuthor.token, state.isLoggedIn, dispatch]);
-
-  // on first render check token validity, if token present
-  useEffect(() => {
     const request = axios.CancelToken.source();
     async function getUser() {
       try {
@@ -136,31 +112,55 @@ function App() {
       }
     }
 
-    if (state.isLoggedIn && state.formAuthor.token) {
-      getUser();
+    async function doLogout() {
+      try {
+        await apiLogout();
+        dispatch({
+          type: "alertMessage",
+          value: "You've successfully logged out",
+          message_type: "success",
+          heading: "Bye!",
+        });
+      } catch (e) {
+        // TODO: what to do here?
+        console.log("Exception in logout");
+      }
     }
-    return () => request.cancel();
-    // eslint-disable-next-line
-  }, []);
+
+    if (state.isLoggedIn && state.formAuthor.token) {
+      setAuthHeader({ token: state.formAuthor.token });
+      putAuthorToken(state.formAuthor.token);
+      getUser();
+
+      return () => request.cancel();
+    } else {
+      if (state.formAuthor.token) {
+        doLogout();
+      }
+      delAuthorToken();
+    }
+  }, [state.isLoggedIn, state.formAuthor.token, dispatch]);
 
   return (
     <StateContext.Provider value={state}>
       <DispatchContext.Provider value={dispatch}>
         <BrowserRouter>
           <AlertMessages messages={state.alertMessages} />
-          <Switch>
-            <Route path="/auth" exact component={Auth} />
-            <PrivateRoute path="/dashboard" exact component={Dashboard} />
-            <PrivateRoute path="/new-form" exact component={NewForm} />
-            <PrivateRoute
-              path="/:form_uri/responses"
-              exact
-              component={ViewFormResponses}
-            />
-            <Route path="/:form_uri" exact component={ViewForm} />
-            <Route path="/" exact component={Index} />
-            <Route component={NotFound} />
-          </Switch>
+          <Suspense fallback={<Loading />}>
+            <Switch>
+              <Route path="/auth" exact component={Auth} />
+              <PrivateRoute path="/dashboard" exact component={Dashboard} />
+              <PrivateRoute path="/new-form" exact component={NewForm} />
+              <PrivateRoute
+                path="/:form_uri/responses"
+                exact
+                component={ViewFormResponses}
+              />
+              <Route path="/:form_uri" exact component={ViewForm} />
+              <Route path="/" exact component={Index} />
+              <Route component={NotFound} />
+            </Switch>
+          </Suspense>
         </BrowserRouter>
       </DispatchContext.Provider>
     </StateContext.Provider>
