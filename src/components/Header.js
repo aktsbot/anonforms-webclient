@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import DispatchContext from "../DispatchContext";
 
@@ -15,14 +15,20 @@ function Header(props) {
     <>
       <nav className="nav" tabIndex="-1">
         <div className="container">
-          <Link to="/" className="pagename">
+          <NavLink
+            to="/dashboard"
+            className="pagename"
+            activeClassName="current"
+          >
             Dashboard
-          </Link>
-          <Link to="/new-form" className="current">
+          </NavLink>
+          <NavLink to="/new-form" activeClassName="current">
             New form
-          </Link>
-          <Link to="/account">Account</Link>
-          <button onClick={handleLogout} href="#" className="nav-btn">
+          </NavLink>
+          <NavLink to="/account" activeClassName="current">
+            Account
+          </NavLink>
+          <button onClick={handleLogout} className="btn-link nav-btn">
             Logout
           </button>
         </div>

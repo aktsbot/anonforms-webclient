@@ -83,18 +83,22 @@ label {
   font-size: small;
 }
 
-.nav-btn {
-  color: #aaa;
+.btn-link {
   top: -1px;
   background: none;
   border: none;
   padding: 0;
   margin: 0;
-  font-size: 14px;
-  padding-right: 1em;
   position: relative;
   top: -1px;
   cursor: pointer;
+  font-size: inherit;
+}
+
+.nav-btn {
+  color: #aaa;
+  padding-right: 1em;
+  font-size: 14px;
 }
 
 /* https://www.w3schools.com/howto/howto_js_alert.asp */
