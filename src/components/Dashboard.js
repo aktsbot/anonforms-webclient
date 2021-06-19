@@ -38,6 +38,7 @@ function Dashboard() {
     return () => request.cancel();
   }, [appDispatch, page]);
 
+  // TODO: duh!
   function changePage(nextOrPrev) {
     setPage(1);
   }

@@ -93,12 +93,15 @@ label {
   top: -1px;
   cursor: pointer;
   font-size: inherit;
+  text-decoration: underline;
+  color: blue;
 }
 
 .nav-btn {
   color: #aaa;
   padding-right: 1em;
   font-size: 14px;
+  text-decoration: none;
 }
 
 /* https://www.w3schools.com/howto/howto_js_alert.asp */

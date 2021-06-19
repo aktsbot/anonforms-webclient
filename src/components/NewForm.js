@@ -1,7 +1,43 @@
-import React from "react";
+import React, { useContext } from "react";
+import { useImmerReducer } from "use-immer";
 import Page from "./Page";
 
+import DispatchContext from "../DispatchContext";
+
 function NewForm() {
+  const appDispatch = useContext(DispatchContext);
+
+  const initialState = {
+    title: "",
+    description: "",
+    uri: "",
+    questions: [],
+    formLooksGood: false,
+  };
+
+  const newFormReducer = (draft, action) => {
+    switch (action.type) {
+      case "titleChange":
+        draft.title = action.value;
+        draft.uri = action.value.toLowerCase().replace(/ /g, "-");
+        return;
+      case "descriptionChange":
+        draft.description = action.value;
+        return;
+      case "addSimpleTextQuestion":
+        draft.questions.push({
+          title: "",
+          question_type: "simple_text",
+          is_required: false,
+        });
+        return;
+      default:
+        return;
+    }
+  };
+
+  const [state, dispatch] = useImmerReducer(newFormReducer, initialState);
+
   return (
     <Page title="Create your new form" showHeader={true}>
       <h1 className="head-underline">Create your new form</h1>
@@ -17,6 +53,9 @@ function NewForm() {
           type="text"
           className="smooth w-100"
           placeholder="Registration form for Foo Conference"
+          onChange={(e) =>
+            dispatch({ type: "titleChange", value: e.target.value })
+          }
         />
       </div>
       <div className="w-100">
@@ -24,136 +63,52 @@ function NewForm() {
         <textarea
           className="smooth w-100"
           placeholder="People who wish to submit their RSVP for the conference may give their details below. Thank you for your interest."
+          onChange={(e) =>
+            dispatch({ type: "descriptionChange", value: e.target.value })
+          }
         ></textarea>
       </div>
 
       <h2 className="head-underline">Questions</h2>
 
-      <div className="card">
-        <div className="w-100">
-          <p>
-            <strong>Q1</strong>
-          </p>
-          <small className="grey">
-            <strong>Simple text:</strong> displays as a normal input box on the
-            form
-          </small>
-          <p>Question text</p>
-          <input className="smooth w-100" placeholder="What is your name? " />
-        </div>
-        <div className="m-t-sm text-right">
-          <button className="btn btn-sm btn-a">Move up</button>
-          <button className="btn btn-sm btn-c">Remove question</button>
-        </div>
-      </div>
+      {state.questions.length === 0 && <p>No questions added yet!</p>}
 
-      <div className="card">
-        <div className="w-100">
-          <p>
-            <strong>Q2</strong>
-          </p>
-          <small className="grey">
-            <strong>Large text:</strong> displays as a textarea on the form.
-          </small>
-          <p>Question text</p>
-          <input
-            className="smooth w-100"
-            placeholder="Describe your daily routines in detail? "
-          />
-        </div>
-        <div className="m-t-sm text-right">
-          <button className="btn btn-sm btn-a">Move up</button>
-          <button className="btn btn-sm btn-c">Remove question</button>
-        </div>
-      </div>
-
-      <div className="card">
-        <div className="w-100">
-          <p>
-            <strong>Q3</strong>
-          </p>
-          <small className="grey">
-            <strong>Checkbox:</strong>
-            displays as a group of checkboxes on the form. User would select
-            more than one checkbox.
-          </small>
-          <p>Question text</p>
-          <input
-            className="smooth w-100"
-            placeholder="Please choose the items you are allergic to? "
-          />
-          <p>Question options</p>
-          <input className="smooth w-100" placeholder="Peanuts" />
-          <input className="smooth w-100 m-t-sm" placeholder="Strawberries" />
-          <div className="m-t-sm">
-            <a href="/">Add new option</a>
+      {state.questions.map((q, index) => {
+        return (
+          <div className="card" key={"q--" + index}>
+            <div className="w-100">
+              <p>
+                <strong>Q{index + 1}</strong>
+              </p>
+              <small className="grey">
+                <strong>Simple text:</strong> displays as a normal input box on
+                the form
+              </small>
+              <p>Question text</p>
+              <input
+                className="smooth w-100"
+                placeholder="What is your name? "
+              />
+            </div>
+            <div className="m-t-sm text-right">
+              <button className="btn btn-sm btn-a">Move up</button>
+              <button className="btn btn-sm btn-c">Remove question</button>
+            </div>
           </div>
-        </div>
-        <div className="m-t-sm text-right">
-          <button className="btn btn-sm btn-a">Move up</button>
-          <button className="btn btn-sm btn-c">Remove question</button>
-        </div>
-      </div>
-
-      <div className="card">
-        <div className="w-100">
-          <p>
-            <strong>Q4</strong>
-          </p>
-          <small className="grey">
-            <strong>Radio:</strong>
-            displays as a group of radio options on the form. User would select
-            only one option.
-          </small>
-          <p>Question text</p>
-          <input className="smooth w-100" placeholder="Are you married? " />
-          <p>Question options</p>
-          <input className="smooth w-100" placeholder="Yes" />
-          <input className="smooth w-100 m-t-sm" placeholder="No" />
-          <div className="m-t-sm">
-            <a href="/">Add new option</a>
-          </div>
-        </div>
-        <div className="m-t-sm text-right">
-          <button className="btn btn-sm btn-a">Move up</button>
-          <button className="btn btn-sm btn-c">Remove question</button>
-        </div>
-      </div>
-
-      <div className="card">
-        <div className="w-100">
-          <p>
-            <strong>Q5</strong>
-          </p>
-          <small className="grey">
-            <strong>Dropdown:</strong>
-            displays as a dropdown on the form. This is useful if this question
-            has a lot of options to choose from. User would select only one
-            option.
-          </small>
-          <p>Question text</p>
-          <input
-            className="smooth w-100"
-            placeholder="Which state are you from? "
-          />
-          <p>Question options</p>
-          <input className="smooth w-100" placeholder="Punjab" />
-          <input className="smooth w-100 m-t-sm" placeholder="Karnataka" />
-          <div className="m-t-sm">
-            <a href="/">Add new option</a>
-          </div>
-        </div>
-        <div className="m-t-sm text-right">
-          <button className="btn btn-sm btn-a">Move up</button>
-          <button className="btn btn-sm btn-c">Remove question</button>
-        </div>
-      </div>
+        );
+      })}
 
       <div className="msg m-t-sm">
         <p>To add a question, please click on any one of the items below.</p>
         <ul>
           <li>
-            <a href="/">Simple text</a> - for single line answers.
+            <button
+              className="btn-link"
+              onClick={() => dispatch({ type: "addSimpleTextQuestion" })}
+            >
+              Simple text
+            </button>{" "}
+            - for single line answers.
           </li>
           <li>
             <a href="/">Large text</a> - for answers taking up multiple lines.
@@ -174,7 +129,9 @@ function NewForm() {
       </div>
 
       <div className="text-center m-b-sm m-t-sm">
-        <button className="btn btn-b">Submit and create my form</button>
+        <button className="btn btn-b" disabled={state.formLooksGood}>
+          Submit and create my form
+        </button>
       </div>
     </Page>
   );
