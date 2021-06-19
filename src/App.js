@@ -109,6 +109,11 @@ function App() {
           message_type: "danger",
           heading: "Request error",
         });
+        // TODO: there's a chance that the token has expired and the server returned a 403
+        // In that case logout. Is there a better way to handle this?
+        dispatch({
+          type: "logout",
+        });
       }
     }
 
