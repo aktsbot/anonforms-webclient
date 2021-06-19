@@ -92,7 +92,9 @@ function NewForm() {
             </div>
             <div className="m-t-sm text-right">
               <button className="btn btn-sm btn-a">Move up</button>
-              <button className="btn btn-sm btn-c">Remove question</button>
+              <button className="btn btn-sm btn-c m-l-sm">
+                Remove question
+              </button>
             </div>
           </div>
         );
