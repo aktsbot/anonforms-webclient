@@ -29,6 +29,8 @@ function NewForm() {
           title: "",
           question_type: "simple_text",
           is_required: false,
+          id: new Date().getTime(),
+          // Note: i couldn't use index in the map method while rendering the UI, as it was not updating
         });
         return;
       case "removeQuestion":
@@ -39,6 +41,9 @@ function NewForm() {
         const current = draft.questions[action.value];
         draft.questions[action.value - 1] = current;
         draft.questions[action.value] = old;
+        return;
+      case "smallTextChange":
+        draft.questions[action.index]["title"] = action.value;
         return;
       default:
         return;
@@ -84,7 +89,7 @@ function NewForm() {
 
       {state.questions.map((q, index) => {
         return (
-          <div className="card" key={"q--" + index}>
+          <div className="card" key={"q--" + q.id}>
             <div className="w-100">
               <p>
                 <strong>Q{index + 1}</strong>
@@ -97,6 +102,13 @@ function NewForm() {
               <input
                 className="smooth w-100"
                 placeholder="What is your name? "
+                onChange={(e) =>
+                  dispatch({
+                    type: "smallTextChange",
+                    value: e.target.value,
+                    index: index,
+                  })
+                }
               />
             </div>
             <div className="m-t-sm text-right">
@@ -112,9 +124,10 @@ function NewForm() {
               )}
               <button
                 className="btn btn-sm btn-c m-l-sm"
-                onClick={() =>
-                  dispatch({ type: "removeQuestion", value: index })
-                }
+                onClick={() => {
+                  console.log(index);
+                  dispatch({ type: "removeQuestion", value: index });
+                }}
               >
                 Remove question
               </button>
