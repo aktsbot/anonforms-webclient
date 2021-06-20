@@ -31,6 +31,15 @@ function NewForm() {
           is_required: false,
         });
         return;
+      case "removeQuestion":
+        draft.questions.splice(action.value, 1);
+        return;
+      case "moveQuestionUp":
+        const old = draft.questions[action.value - 1];
+        const current = draft.questions[action.value];
+        draft.questions[action.value - 1] = current;
+        draft.questions[action.value] = old;
+        return;
       default:
         return;
     }
@@ -91,8 +100,22 @@ function NewForm() {
               />
             </div>
             <div className="m-t-sm text-right">
-              <button className="btn btn-sm btn-a">Move up</button>
-              <button className="btn btn-sm btn-c m-l-sm">
+              {index !== 0 && (
+                <button
+                  className="btn btn-sm btn-a"
+                  onClick={() =>
+                    dispatch({ type: "moveQuestionUp", value: index })
+                  }
+                >
+                  Move up
+                </button>
+              )}
+              <button
+                className="btn btn-sm btn-c m-l-sm"
+                onClick={() =>
+                  dispatch({ type: "removeQuestion", value: index })
+                }
+              >
                 Remove question
               </button>
             </div>
