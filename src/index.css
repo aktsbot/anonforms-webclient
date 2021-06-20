@@ -99,6 +99,7 @@ label {
   font-size: inherit;
   text-decoration: underline;
   color: blue;
+  outline: none;
 }
 
 .nav-btn {

@@ -24,14 +24,23 @@ function NewForm() {
       case "descriptionChange":
         draft.description = action.value;
         return;
-      case "addSimpleTextQuestion":
-        draft.questions.push({
-          title: "",
-          question_type: "simple_text",
-          is_required: false,
-          id: new Date().getTime(),
+      case "addQuestion":
+        let questionPayload = {
           // Note: i couldn't use index in the map method while rendering the UI, as it was not updating
-        });
+          id: new Date().getTime(),
+          is_required: false,
+          title: "",
+        };
+        if (action.value === "simple_text" || action.value === "large_text") {
+          questionPayload = { ...questionPayload, question_type: action.value };
+        } else if (action.value === "radio") {
+          questionPayload = {
+            ...questionPayload,
+            question_type: action.value,
+            question_options: [{ id: new Date().getTime(), title: "" }],
+          };
+        }
+        draft.questions.push(questionPayload);
         return;
       case "removeQuestion":
         draft.questions.splice(action.value, 1);
@@ -42,8 +51,14 @@ function NewForm() {
         draft.questions[action.value - 1] = current;
         draft.questions[action.value] = old;
         return;
-      case "smallTextChange":
+      case "questionTitleChange":
         draft.questions[action.index]["title"] = action.value;
+        return;
+      case "addRadioOption":
+        draft.questions[action.value]["question_options"].push({
+          id: new Date().getTime(),
+          title: "",
+        });
         return;
       default:
         return;
@@ -95,21 +110,94 @@ function NewForm() {
                 <strong>Q{index + 1}</strong>
               </p>
               <small className="grey">
-                <strong>Simple text:</strong> displays as a normal input box on
-                the form
+                {q.question_type === "simple_text" && (
+                  <>
+                    <strong>Simple text:</strong> displays as a normal input box
+                    on the form.
+                  </>
+                )}
+
+                {q.question_type === "large_text" && (
+                  <>
+                    <strong>Large text:</strong> displays as a textarea on the
+                    form.
+                  </>
+                )}
+
+                {q.question_type === "radio" && (
+                  <>
+                    <strong>Radio:</strong> displays as a group of radio options
+                    on the form. User would select only one option.
+                  </>
+                )}
               </small>
               <p>Question text</p>
-              <input
-                className="smooth w-100"
-                placeholder="What is your name? "
-                onChange={(e) =>
-                  dispatch({
-                    type: "smallTextChange",
-                    value: e.target.value,
-                    index: index,
-                  })
-                }
-              />
+              {q.question_type === "simple_text" && (
+                <input
+                  type="text"
+                  className="smooth w-100"
+                  placeholder="What is your name? "
+                  onChange={(e) =>
+                    dispatch({
+                      type: "questionTitleChange",
+                      value: e.target.value,
+                      index: index,
+                    })
+                  }
+                />
+              )}
+              {q.question_type === "large_text" && (
+                <input
+                  type="text"
+                  className="smooth w-100"
+                  placeholder="Describe your daily routines in detail? "
+                  onChange={(e) =>
+                    dispatch({
+                      type: "questionTitleChange",
+                      value: e.target.value,
+                      index: index,
+                    })
+                  }
+                />
+              )}
+              {q.question_type === "radio" && (
+                <>
+                  <input
+                    type="text"
+                    className="smooth w-100"
+                    placeholder="Are you married? "
+                    onChange={(e) =>
+                      dispatch({
+                        type: "questionTitleChange",
+                        value: e.target.value,
+                        index: index,
+                      })
+                    }
+                  />
+                  <p>Question options</p>
+                  {q.question_options.map((o, oindex) => {
+                    let className = oindex ? "m-t-sm" : "";
+                    return (
+                      <input
+                        type="text"
+                        className={`smooth w-100 ${className}`}
+                        placeholder={oindex % 2 === 0 ? "Yes" : "No"}
+                        key={`radio-opts--${o.id}`}
+                      />
+                    );
+                  })}
+                  <div className="m-t-sm">
+                    <button
+                      className="btn-link"
+                      onClick={() =>
+                        dispatch({ type: "addRadioOption", value: index })
+                      }
+                    >
+                      Add new option
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
             <div className="m-t-sm text-right">
               {index !== 0 && (
@@ -142,22 +230,37 @@ function NewForm() {
           <li>
             <button
               className="btn-link"
-              onClick={() => dispatch({ type: "addSimpleTextQuestion" })}
+              onClick={() =>
+                dispatch({ type: "addQuestion", value: "simple_text" })
+              }
             >
               Simple text
             </button>{" "}
             - for single line answers.
           </li>
           <li>
-            <a href="/">Large text</a> - for answers taking up multiple lines.
+            <button
+              className="btn-link"
+              onClick={() =>
+                dispatch({ type: "addQuestion", value: "large_text" })
+              }
+            >
+              Large text
+            </button>{" "}
+            - for answers taking up multiple lines.
+          </li>
+          <li>
+            <button
+              className="btn-link"
+              onClick={() => dispatch({ type: "addQuestion", value: "radio" })}
+            >
+              Radio
+            </button>{" "}
+            - for questions that can have only one right answer.
           </li>
           <li>
             <a href="/">Checkbox</a> - for questions that can have multiple
             right answers.
-          </li>
-          <li>
-            <a href="/">Radio</a> - for questions that can have only one right
-            answer.
           </li>
           <li>
             <a href="/">Dropdown</a> - for questions that have a huge list of
