@@ -84,7 +84,7 @@ label {
 }
 
 .small {
-  font-size: small;
+  font-size: small !important;
 }
 
 .btn-link {

@@ -70,6 +70,14 @@ function NewForm() {
           action.optionIndex
         ]["title"] = action.value;
         return;
+      case "removeRadioOption":
+      case "removeCheckboxOption":
+      case "removeDropdownOption":
+        draft.questions[action.questionIndex]["question_options"].splice(
+          action.optionIndex,
+          1
+        );
+        return;
       default:
         return;
     }
@@ -78,8 +86,33 @@ function NewForm() {
   const [state, dispatch] = useImmerReducer(newFormReducer, initialState);
 
   const isFormValid = useMemo(() => {
-    if (!state.title) {
+    if (!state.title || !state.description || !state.uri) {
       return false;
+    }
+
+    if (!state.questions.length) {
+      return false;
+    }
+
+    for (const q of state.questions) {
+      if (!q.title) {
+        return false;
+      }
+      if (
+        q.question_type === "radio" ||
+        q.question_type === "checkbox" ||
+        q.question_type === "dropdown"
+      ) {
+        if (!q.question_options.length) {
+          // Note: the dispatch takes care of inserting atleast one option, but this is a fail-safe
+          return false;
+        }
+        for (const o of q.question_options) {
+          if (!o.title) {
+            return false;
+          }
+        }
+      }
     }
     return true;
   }, [state]);
@@ -210,20 +243,35 @@ function NewForm() {
                   {q.question_options.map((o, oindex) => {
                     let className = oindex ? "m-t-sm" : "";
                     return (
-                      <input
-                        type="text"
-                        className={`smooth w-100 ${className}`}
-                        placeholder={oindex % 2 === 0 ? "Yes" : "No"}
-                        key={`radio-opts--${o.id}`}
-                        onChange={(e) =>
-                          dispatch({
-                            type: "questionOptionChange",
-                            value: e.target.value,
-                            optionIndex: oindex,
-                            questionIndex: index,
-                          })
-                        }
-                      />
+                      <div key={`radio-opts--${o.id}`}>
+                        <input
+                          type="text"
+                          className={`smooth w-100 ${className}`}
+                          placeholder={oindex % 2 === 0 ? "Yes" : "No"}
+                          onChange={(e) =>
+                            dispatch({
+                              type: "questionOptionChange",
+                              value: e.target.value,
+                              optionIndex: oindex,
+                              questionIndex: index,
+                            })
+                          }
+                        />
+                        {oindex !== 0 && (
+                          <button
+                            className="btn-link small"
+                            onClick={() =>
+                              dispatch({
+                                type: "removeRadioOption",
+                                questionIndex: index,
+                                optionIndex: oindex,
+                              })
+                            }
+                          >
+                            Remove option
+                          </button>
+                        )}
+                      </div>
                     );
                   })}
                   <div className="m-t-sm">
@@ -256,22 +304,37 @@ function NewForm() {
                   {q.question_options.map((o, oindex) => {
                     let className = oindex ? "m-t-sm" : "";
                     return (
-                      <input
-                        type="text"
-                        className={`smooth w-100 ${className}`}
-                        placeholder={
-                          oindex % 2 === 0 ? "Peanuts" : "Strawberries"
-                        }
-                        key={`checkbox-opts--${o.id}`}
-                        onChange={(e) =>
-                          dispatch({
-                            type: "questionOptionChange",
-                            value: e.target.value,
-                            optionIndex: oindex,
-                            questionIndex: index,
-                          })
-                        }
-                      />
+                      <div key={`checkbox-opts--${o.id}`}>
+                        <input
+                          type="text"
+                          className={`smooth w-100 ${className}`}
+                          placeholder={
+                            oindex % 2 === 0 ? "Peanuts" : "Strawberries"
+                          }
+                          onChange={(e) =>
+                            dispatch({
+                              type: "questionOptionChange",
+                              value: e.target.value,
+                              optionIndex: oindex,
+                              questionIndex: index,
+                            })
+                          }
+                        />
+                        {oindex !== 0 && (
+                          <button
+                            className="btn-link small"
+                            onClick={() =>
+                              dispatch({
+                                type: "removeCheckboxOption",
+                                questionIndex: index,
+                                optionIndex: oindex,
+                              })
+                            }
+                          >
+                            Remove option
+                          </button>
+                        )}
+                      </div>
                     );
                   })}
                   <div className="m-t-sm">
@@ -305,20 +368,38 @@ function NewForm() {
                   {q.question_options.map((o, oindex) => {
                     let className = oindex ? "m-t-sm" : "";
                     return (
-                      <input
-                        type="text"
-                        className={`smooth w-100 ${className}`}
-                        placeholder={oindex % 2 === 0 ? "Karnataka" : "Punjab"}
-                        key={`dropdown-opts--${o.id}`}
-                        onChange={(e) =>
-                          dispatch({
-                            type: "questionOptionChange",
-                            value: e.target.value,
-                            optionIndex: oindex,
-                            questionIndex: index,
-                          })
-                        }
-                      />
+                      <div key={`dropdown-opts--${o.id}`}>
+                        <input
+                          type="text"
+                          className={`smooth w-100 ${className}`}
+                          placeholder={
+                            oindex % 2 === 0 ? "Karnataka" : "Punjab"
+                          }
+                          onChange={(e) =>
+                            dispatch({
+                              type: "questionOptionChange",
+                              value: e.target.value,
+                              optionIndex: oindex,
+                              questionIndex: index,
+                            })
+                          }
+                        />
+
+                        {oindex !== 0 && (
+                          <button
+                            className="btn-link small"
+                            onClick={() =>
+                              dispatch({
+                                type: "removeCheckboxOption",
+                                questionIndex: index,
+                                optionIndex: oindex,
+                              })
+                            }
+                          >
+                            Remove option
+                          </button>
+                        )}
+                      </div>
                     );
                   })}
                   <div className="m-t-sm">
