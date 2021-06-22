@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 import { useImmerReducer } from "use-immer";
 import Page from "./Page";
 
@@ -12,7 +12,6 @@ function NewForm() {
     description: "",
     uri: "",
     questions: [],
-    formLooksGood: false,
   };
 
   const newFormReducer = (draft, action) => {
@@ -66,12 +65,24 @@ function NewForm() {
           title: "",
         });
         return;
+      case "questionOptionChange":
+        draft.questions[action.questionIndex]["question_options"][
+          action.optionIndex
+        ]["title"] = action.value;
+        return;
       default:
         return;
     }
   };
 
   const [state, dispatch] = useImmerReducer(newFormReducer, initialState);
+
+  const isFormValid = useMemo(() => {
+    if (!state.title) {
+      return false;
+    }
+    return true;
+  }, [state]);
 
   return (
     <Page title="Create your new form" showHeader={true}>
@@ -204,6 +215,14 @@ function NewForm() {
                         className={`smooth w-100 ${className}`}
                         placeholder={oindex % 2 === 0 ? "Yes" : "No"}
                         key={`radio-opts--${o.id}`}
+                        onChange={(e) =>
+                          dispatch({
+                            type: "questionOptionChange",
+                            value: e.target.value,
+                            optionIndex: oindex,
+                            questionIndex: index,
+                          })
+                        }
                       />
                     );
                   })}
@@ -244,6 +263,14 @@ function NewForm() {
                           oindex % 2 === 0 ? "Peanuts" : "Strawberries"
                         }
                         key={`checkbox-opts--${o.id}`}
+                        onChange={(e) =>
+                          dispatch({
+                            type: "questionOptionChange",
+                            value: e.target.value,
+                            optionIndex: oindex,
+                            questionIndex: index,
+                          })
+                        }
                       />
                     );
                   })}
@@ -283,6 +310,14 @@ function NewForm() {
                         className={`smooth w-100 ${className}`}
                         placeholder={oindex % 2 === 0 ? "Karnataka" : "Punjab"}
                         key={`dropdown-opts--${o.id}`}
+                        onChange={(e) =>
+                          dispatch({
+                            type: "questionOptionChange",
+                            value: e.target.value,
+                            optionIndex: oindex,
+                            questionIndex: index,
+                          })
+                        }
                       />
                     );
                   })}
@@ -384,7 +419,7 @@ function NewForm() {
       </div>
 
       <div className="text-center m-b-sm m-t-sm">
-        <button className="btn btn-b" disabled={state.formLooksGood}>
+        <button className="btn btn-b" disabled={isFormValid}>
           Submit and create my form
         </button>
       </div>
