@@ -33,7 +33,11 @@ function NewForm() {
         };
         if (action.value === "simple_text" || action.value === "large_text") {
           questionPayload = { ...questionPayload, question_type: action.value };
-        } else if (action.value === "radio") {
+        } else if (
+          action.value === "radio" ||
+          action.value === "checkbox" ||
+          action.value === "dropdown"
+        ) {
           questionPayload = {
             ...questionPayload,
             question_type: action.value,
@@ -55,6 +59,8 @@ function NewForm() {
         draft.questions[action.index]["title"] = action.value;
         return;
       case "addRadioOption":
+      case "addCheckboxOption":
+      case "addDropdownOption":
         draft.questions[action.value]["question_options"].push({
           id: new Date().getTime(),
           title: "",
@@ -130,6 +136,21 @@ function NewForm() {
                     on the form. User would select only one option.
                   </>
                 )}
+
+                {q.question_type === "checkbox" && (
+                  <>
+                    <strong>Checkbox:</strong> displays as a group of checkboxes
+                    on the form. User would select more than one checkbox.
+                  </>
+                )}
+
+                {q.question_type === "dropdown" && (
+                  <>
+                    <strong>Dropdown:</strong> displays as a dropdown on the
+                    form. This is useful if this question has a lot of options
+                    to choose from. User would select only one option.
+                  </>
+                )}
               </small>
               <p>Question text</p>
               {q.question_type === "simple_text" && (
@@ -198,6 +219,85 @@ function NewForm() {
                   </div>
                 </>
               )}
+              {q.question_type === "checkbox" && (
+                <>
+                  <input
+                    type="text"
+                    className="smooth w-100"
+                    placeholder="Please choose the items you are allergic to? "
+                    onChange={(e) =>
+                      dispatch({
+                        type: "questionTitleChange",
+                        value: e.target.value,
+                        index: index,
+                      })
+                    }
+                  />
+                  <p>Question options</p>
+                  {q.question_options.map((o, oindex) => {
+                    let className = oindex ? "m-t-sm" : "";
+                    return (
+                      <input
+                        type="text"
+                        className={`smooth w-100 ${className}`}
+                        placeholder={
+                          oindex % 2 === 0 ? "Peanuts" : "Strawberries"
+                        }
+                        key={`checkbox-opts--${o.id}`}
+                      />
+                    );
+                  })}
+                  <div className="m-t-sm">
+                    <button
+                      className="btn-link"
+                      onClick={() =>
+                        dispatch({ type: "addCheckboxOption", value: index })
+                      }
+                    >
+                      Add new option
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {q.question_type === "dropdown" && (
+                <>
+                  <input
+                    type="text"
+                    className="smooth w-100"
+                    placeholder="Which state are you from? "
+                    onChange={(e) =>
+                      dispatch({
+                        type: "questionTitleChange",
+                        value: e.target.value,
+                        index: index,
+                      })
+                    }
+                  />
+                  <p>Question options</p>
+                  {q.question_options.map((o, oindex) => {
+                    let className = oindex ? "m-t-sm" : "";
+                    return (
+                      <input
+                        type="text"
+                        className={`smooth w-100 ${className}`}
+                        placeholder={oindex % 2 === 0 ? "Karnataka" : "Punjab"}
+                        key={`dropdown-opts--${o.id}`}
+                      />
+                    );
+                  })}
+                  <div className="m-t-sm">
+                    <button
+                      className="btn-link"
+                      onClick={() =>
+                        dispatch({ type: "addDropdownOption", value: index })
+                      }
+                    >
+                      Add new option
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
             <div className="m-t-sm text-right">
               {index !== 0 && (
@@ -259,12 +359,26 @@ function NewForm() {
             - for questions that can have only one right answer.
           </li>
           <li>
-            <a href="/">Checkbox</a> - for questions that can have multiple
-            right answers.
+            <button
+              className="btn-link"
+              onClick={() =>
+                dispatch({ type: "addQuestion", value: "checkbox" })
+              }
+            >
+              Checkbox
+            </button>{" "}
+            - for questions that can have multiple right answers.
           </li>
           <li>
-            <a href="/">Dropdown</a> - for questions that have a huge list of
-            answers to choose from.
+            <button
+              className="btn-link"
+              onClick={() =>
+                dispatch({ type: "addQuestion", value: "dropdown" })
+              }
+            >
+              Dropdown
+            </button>{" "}
+            - for questions that have a huge list of answers to choose from.
           </li>
         </ul>
       </div>
