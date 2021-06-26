@@ -63,8 +63,14 @@ export const apiGetForms = ({ page, req_cancel_token }) => {
     .then((res) => res.data);
 };
 
-export const createForm = ({ payload, req_cancel_token }) => {
+export const apiCreateForm = ({ payload, req_cancel_token }) => {
   return http
     .post("/form", { ...payload }, { cancelToken: req_cancel_token })
+    .then((res) => res.data);
+};
+
+export const apiGetForm = ({ form_uri, req_cancel_token }) => {
+  return http
+    .get(`/form/${form_uri}`, {}, { cancelToken: req_cancel_token })
     .then((res) => res.data);
 };

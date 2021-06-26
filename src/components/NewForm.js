@@ -5,7 +5,7 @@ import axios from "axios";
 import Page from "./Page";
 
 import DispatchContext from "../DispatchContext";
-import { createForm } from "../services/api";
+import { apiCreateForm } from "../services/api";
 import { getAxiosError } from "../services/utils";
 
 function NewForm() {
@@ -133,7 +133,7 @@ function NewForm() {
     const request = axios.CancelToken.source();
     async function createNewForm(payload) {
       try {
-        await createForm({ payload, req_cancel_token: request.token });
+        await apiCreateForm({ payload, req_cancel_token: request.token });
         appDispatch({
           type: "alertMessage",
           value: "Your form has been created",
