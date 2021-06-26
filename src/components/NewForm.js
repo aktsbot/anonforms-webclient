@@ -1,4 +1,5 @@
 import React, { useEffect, useContext, useMemo } from "react";
+import { Redirect } from "react-router-dom";
 import { useImmerReducer } from "use-immer";
 import axios from "axios";
 import Page from "./Page";
@@ -16,6 +17,7 @@ function NewForm() {
     uri: "",
     questions: [],
     submitCount: 0,
+    isFormCreated: false,
   };
 
   const newFormReducer = (draft, action) => {
@@ -85,6 +87,9 @@ function NewForm() {
       case "submitForm":
         draft.submitCount += 1;
         return;
+      case "formCreated":
+        draft.isFormCreated = true;
+        return;
       default:
         return;
     }
@@ -135,6 +140,7 @@ function NewForm() {
           message_type: "success",
           heading: "Woot woot!",
         });
+        dispatch({ type: "formCreated" });
       } catch (e) {
         appDispatch({
           type: "alertMessage",
@@ -146,12 +152,43 @@ function NewForm() {
     }
 
     if (state.submitCount) {
-      const payload = {};
+      const payload = {
+        title: state.title,
+        description: state.description,
+        uri: state.uri,
+        questions: state.questions.map((q) => {
+          let newQ = { ...q };
+          // removing id, as the backend throws an error, if the payload doesnot
+          // match its schema
+          delete newQ.id;
+          if (newQ.question_options) {
+            newQ.question_options = newQ.question_options.map((qo) => {
+              let newOption = { ...qo };
+              // remove id, as backend does not expects it
+              delete newOption.id;
+              return newOption;
+            });
+          }
+          return newQ;
+        }),
+      };
       createNewForm(payload);
     }
-  }, [state.submitCount, appDispatch]);
 
-  return (
+    return () => request.cancel();
+  }, [
+    state.submitCount,
+    appDispatch,
+    dispatch,
+    state.title,
+    state.description,
+    state.questions,
+    state.uri,
+  ]);
+
+  return state.isFormCreated ? (
+    <Redirect to="/dashboard" />
+  ) : (
     <Page title="Create your new form" showHeader={true}>
       <h1 className="head-underline">Create your new form</h1>
 
