@@ -2,6 +2,7 @@ import React, { useContext, useEffect } from "react";
 import axios from "axios";
 import { useImmerReducer } from "use-immer";
 import { useParams } from "react-router-dom";
+import NotFound from "./NotFound";
 import Page from "./Page";
 
 import DispatchContext from "../DispatchContext";
@@ -69,62 +70,72 @@ function ViewForm() {
     }
   }, [state.formUri, dispatch, appDispatch]);
 
-  return (
-    <Page title="Measuring your performance">
-      <h2>Measuring your performance</h2>
-      <p>
-        This is a sample form to mainly figure out your hidden potential is a
-        warrior for the Eldian empire. This is not in anyway a conclusive test.
-        Feel free to give it your all. All the best!
-      </p>
-      <div className="w-100">
-        <p>
-          Q1. What is your name? <span className="red">*</span>
-        </p>
-        <input type="text" placeholder="Eren Jaeger" className="smooth w-100" />
-      </div>
-      <div className="w-100">
-        <p>Q2. Describe your childhood in a few words?</p>
-        <textarea rows="3" className="smooth w-100"></textarea>
-      </div>
-      <div className="w-100">
-        <p>Q3. Which of the following are you allergic to?</p>
-        <label>
-          <input type="checkbox" value="Apples" /> Apples
-        </label>
-        <label>
-          <input type="checkbox" value="Oranges" /> Oranges
-        </label>
-        <label>
-          <input type="checkbox" value="Strawberries" /> Strawberries
-        </label>
-        <label>
-          <input type="checkbox" value="Pinecones" /> Pine cones
-        </label>
-      </div>
-      <div className="w-100">
-        <p>Q4. Which of these places are you most likely to visit?</p>
-        <select className="w-100">
-          <option>Eldia</option>
-          <option>Marley</option>
-        </select>
-      </div>
-      <div>
-        <p>Q5. Choose one carefully</p>
-        <label>
-          <input type="radio" value="Noair" name="r1" />
-          No air for an hour
-        </label>
-        <label>
-          <input type="radio" value="Nowater" name="r1" />
-          No water for an hour
-        </label>
-      </div>
+  return !state.formFound ? (
+    <NotFound />
+  ) : (
+    state.formInfo && (
+      <Page title={state.formInfo.title}>
+        <h2>{state.formInfo.title}</h2>
+        <p>{state.formInfo.description}</p>
+        <form>
+          {state.formInfo.questions.map((q, index) => {
+            return (
+              <div className="w-100" key={q._id}>
+                <p>
+                  Q{index + 1}. {q.title}{" "}
+                  {q.is_required && <span className="red">*</span>}
+                </p>
+                {q.question_type === "simple_text" && (
+                  <input
+                    type="text"
+                    className="smooth w-100"
+                    required={q.is_required}
+                  />
+                )}
+                {q.question_type === "large_text" && (
+                  <textarea
+                    rows="3"
+                    className="smooth w-100"
+                    required={q.is_required}
+                  ></textarea>
+                )}
+                {q.question_type === "radio" &&
+                  q.question_options.map((qo) => {
+                    return (
+                      <label key={qo._id}>
+                        <input type="radio" value={qo.id} name={q._id} />{" "}
+                        {qo.title}
+                      </label>
+                    );
+                  })}
+                {q.question_type === "checkbox" &&
+                  q.question_options.map((qo) => {
+                    return (
+                      <label key={qo._id}>
+                        <input type="checkbox" value={qo.id} name={q._id} />{" "}
+                        {qo.title}
+                      </label>
+                    );
+                  })}
+                {q.question_type === "dropdown" && (
+                  <select className="w-100">
+                    {q.question_options.map((qo) => {
+                      return <option key={qo._id}>{qo.title}</option>;
+                    })}
+                  </select>
+                )}
+              </div>
+            );
+          })}
 
-      <div className="m-t-sm">
-        <button className="btn btn-b btn-sm">Submit my response</button>
-      </div>
-    </Page>
+          <div className="m-t-sm">
+            <button type="submit" className="btn btn-b btn-sm">
+              Submit my response
+            </button>
+          </div>
+        </form>
+      </Page>
+    )
   );
 }
 
