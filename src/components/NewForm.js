@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from "react";
+import React, { useEffect, useContext, useMemo } from "react";
 import { useImmerReducer } from "use-immer";
 import Page from "./Page";
 
@@ -12,6 +12,7 @@ function NewForm() {
     description: "",
     uri: "",
     questions: [],
+    submitCount: 0,
   };
 
   const newFormReducer = (draft, action) => {
@@ -78,6 +79,9 @@ function NewForm() {
           1
         );
         return;
+      case "submitForm":
+        draft.submitCount += 1;
+        return;
       default:
         return;
     }
@@ -116,6 +120,12 @@ function NewForm() {
     }
     return true;
   }, [state]);
+
+  useEffect(() => {
+    if (state.submitCount) {
+      console.log("submitting form");
+    }
+  }, [state.submitCount]);
 
   return (
     <Page title="Create your new form" showHeader={true}>
@@ -500,7 +510,11 @@ function NewForm() {
       </div>
 
       <div className="text-center m-b-sm m-t-sm">
-        <button className="btn btn-b" disabled={isFormValid}>
+        <button
+          className="btn btn-b"
+          disabled={!isFormValid}
+          onClick={() => dispatch({ type: "submitForm" })}
+        >
           Submit and create my form
         </button>
       </div>
