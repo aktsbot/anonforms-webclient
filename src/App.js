@@ -47,6 +47,7 @@ function App() {
     isLoggedIn: Boolean(getAuthorToken()),
     // for actions that users do in the app like submitting forms, logins etc.
     alertMessages: [],
+    scrollToTop: false,
   };
 
   const appReducer = (draft, action) => {
@@ -67,6 +68,7 @@ function App() {
           message: action.value,
           heading: action.heading || null,
         });
+        draft.scrollToTop = true;
         return;
       case "alertMessageClear":
         if (action.value === -1) {
@@ -76,6 +78,7 @@ function App() {
           // remove specific message
           draft.alertMessages.splice(action.value, 1);
         }
+        draft.scrollToTop = false;
         return;
       default:
         return;
@@ -94,6 +97,13 @@ function App() {
       return () => clearTimeout(delay);
     }
   }, [state.alertMessages, dispatch]);
+
+  // scroll to top of page after messages are set
+  useEffect(() => {
+    if (state.scrollToTop) {
+      window.scrollTo(0, 0);
+    }
+  }, [state.scrollToTop]);
 
   useEffect(() => {
     const request = axios.CancelToken.source();

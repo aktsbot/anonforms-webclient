@@ -1,8 +1,11 @@
 import React, { useEffect, useContext, useMemo } from "react";
 import { useImmerReducer } from "use-immer";
+import axios from "axios";
 import Page from "./Page";
 
 import DispatchContext from "../DispatchContext";
+import { createForm } from "../services/api";
+import { getAxiosError } from "../services/utils";
 
 function NewForm() {
   const appDispatch = useContext(DispatchContext);
@@ -122,10 +125,31 @@ function NewForm() {
   }, [state]);
 
   useEffect(() => {
-    if (state.submitCount) {
-      console.log("submitting form");
+    const request = axios.CancelToken.source();
+    async function createNewForm(payload) {
+      try {
+        await createForm({ payload, req_cancel_token: request.token });
+        appDispatch({
+          type: "alertMessage",
+          value: "Your form has been created",
+          message_type: "success",
+          heading: "Woot woot!",
+        });
+      } catch (e) {
+        appDispatch({
+          type: "alertMessage",
+          value: getAxiosError(e),
+          message_type: "danger",
+          heading: "Error",
+        });
+      }
     }
-  }, [state.submitCount]);
+
+    if (state.submitCount) {
+      const payload = {};
+      createNewForm(payload);
+    }
+  }, [state.submitCount, appDispatch]);
 
   return (
     <Page title="Create your new form" showHeader={true}>
