@@ -27,3 +27,14 @@ export const getRandomString = (length) => {
   }
   return result;
 };
+
+export const makeFormattedDate = (date) => {
+  const d = new Date(date);
+  const dateString =
+    d.getFullYear() +
+    "/" +
+    (d.getMonth() + 1).toString().padStart(2, "0") +
+    "/" +
+    d.getDate();
+  return dateString;
+};

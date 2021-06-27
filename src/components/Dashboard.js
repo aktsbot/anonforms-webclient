@@ -5,7 +5,7 @@ import Page from "./Page";
 
 import DispatchContext from "../DispatchContext";
 import { apiGetForms } from "../services/api";
-import { getAxiosError } from "../services/utils";
+import { getAxiosError, makeFormattedDate } from "../services/utils";
 
 function Dashboard() {
   const appDispatch = useContext(DispatchContext);
@@ -69,7 +69,7 @@ function Dashboard() {
                 <td>
                   <span>{form.title}</span> -{" "}
                   <small>
-                    <code>2021/02/09</code>
+                    <code>{makeFormattedDate(form.createdAt)}</code>
                   </small>
                 </td>
                 <td>
