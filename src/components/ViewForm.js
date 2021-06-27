@@ -7,7 +7,7 @@ import Page from "./Page";
 
 import DispatchContext from "../DispatchContext";
 import StateContext from "../StateContext";
-import { apiGetForm } from "../services/api";
+import { apiGetForm, apiSubmitFormResponse } from "../services/api";
 import { getAxiosError, getRandomString } from "../services/utils";
 
 function ViewForm() {
@@ -25,6 +25,7 @@ function ViewForm() {
     formUri: form_uri,
     showUsernameModal: !Boolean(appState.formUser.name),
     suggestedUsername: appState.formUser.name || getRandomString(6),
+    submitCount: 0,
   };
 
   const viewFormReducer = (draft, action) => {
@@ -72,6 +73,9 @@ function ViewForm() {
             draft.answers[index]["answer_multiple_option"].splice(optIndex, 1);
           }
         }
+        return;
+      case "submitForm":
+        draft.submitCount += 1;
         return;
       default:
         return;
@@ -149,6 +153,50 @@ function ViewForm() {
     }
   }, [state.formUri, dispatch, appDispatch]);
 
+  useEffect(() => {
+    const request = axios.CancelToken.source();
+    async function createSubmission(payload, form_uuid) {
+      try {
+        await apiSubmitFormResponse({
+          payload,
+          req_cancel_token: request.token,
+          form_uuid,
+        });
+        appDispatch({
+          type: "alertMessage",
+          value: "Your response has been submitted",
+          message_type: "success",
+          heading: "Thank you!",
+        });
+        // dispatch({ type: "formSubmitted" });
+      } catch (e) {
+        appDispatch({
+          type: "alertMessage",
+          value: getAxiosError(e),
+          message_type: "danger",
+          heading: "Error",
+        });
+      }
+    }
+
+    if (state.submitCount) {
+      const payload = {
+        response_from: state.username,
+        answers: state.answers,
+      };
+      createSubmission(payload, state.formInfo.uuid);
+    }
+
+    return () => request.cancel();
+  }, [
+    state.submitCount,
+    appDispatch,
+    dispatch,
+    state.answers,
+    state.username,
+    state.formInfo,
+  ]);
+
   return !state.formFound ? (
     <NotFound />
   ) : (
@@ -210,7 +258,13 @@ function ViewForm() {
 
         <h2>{state.formInfo.title}</h2>
         <p>{state.formInfo.description}</p>
-        <form className="w-100">
+        <form
+          className="w-100"
+          onSubmit={(e) => {
+            e.preventDefault();
+            dispatch({ type: "submitForm" });
+          }}
+        >
           {state.formInfo.questions.map((q, index) => {
             return (
               <div className="w-100" key={q._id}>
@@ -313,7 +367,11 @@ function ViewForm() {
                     }
                   >
                     {q.question_options.map((qo) => {
-                      return <option key={qo._id}>{qo.title}</option>;
+                      return (
+                        <option key={qo._id} value={qo._id}>
+                          {qo.title}
+                        </option>
+                      );
                     })}
                   </select>
                 )}
