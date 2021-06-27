@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import axios from "axios";
 import { useImmerReducer } from "use-immer";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import NotFound from "./NotFound";
 import Page from "./Page";
 
@@ -16,6 +16,7 @@ function ViewForm() {
   const appDispatch = useContext(DispatchContext);
   const appState = useContext(StateContext);
   const { form_uri } = useParams();
+  const history = useHistory();
 
   const initialState = {
     username: appState.formUser.name, // the person who responds to the form and not the person who made it!
@@ -26,6 +27,7 @@ function ViewForm() {
     showUsernameModal: !Boolean(appState.formUser.name),
     suggestedUsername: appState.formUser.name || getRandomString(6),
     submitCount: 0,
+    isFormSubmitted: false,
   };
 
   const viewFormReducer = (draft, action) => {
@@ -76,6 +78,9 @@ function ViewForm() {
         return;
       case "submitForm":
         draft.submitCount += 1;
+        return;
+      case "formSubmitted":
+        draft.isFormSubmitted = true;
         return;
       default:
         return;
@@ -168,7 +173,7 @@ function ViewForm() {
           message_type: "success",
           heading: "Thank you!",
         });
-        // dispatch({ type: "formSubmitted" });
+        dispatch({ type: "formSubmitted" });
       } catch (e) {
         appDispatch({
           type: "alertMessage",
@@ -197,6 +202,12 @@ function ViewForm() {
     state.formInfo,
   ]);
 
+  useEffect(() => {
+    if (state.isFormSubmitted) {
+      history.push("/");
+    }
+  }, [state.isFormSubmitted, history]);
+
   return !state.formFound ? (
     <NotFound />
   ) : (
@@ -206,7 +217,7 @@ function ViewForm() {
           <div className="modal">
             <div className="modal-content">
               <span
-                class="modal-close-btn"
+                className="modal-close-btn"
                 onClick={() =>
                   dispatch({ type: "usernameModal", value: false })
                 }
