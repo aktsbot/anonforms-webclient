@@ -68,7 +68,9 @@ function Dashboard() {
                   <Link to={`/${form.uri}`}>{form.uri}</Link>
                 </td>
                 <td>
-                  <Link to={`/${form.uri}/responses`}>23</Link>
+                  <Link to={`/${form.uri}/responses`}>
+                    {form.response_count}
+                  </Link>
                 </td>
               </tr>
             );
