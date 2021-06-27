@@ -46,6 +46,9 @@ function ViewForm() {
       case "suggestedUsername":
         draft.suggestedUsername = action.value;
         return;
+      case "setUsername":
+        draft.username = action.value;
+        return;
       default:
         return;
     }
@@ -58,6 +61,7 @@ function ViewForm() {
       dispatch({ type: "usernameModal", value: true });
     }
     if (state.suggestedUsername) {
+      dispatch({ type: "setUsername", value: state.suggestedUsername });
       appDispatch({ type: "formUser", value: state.suggestedUsername });
     }
     return;
@@ -143,7 +147,7 @@ function ViewForm() {
         {appState.formUser.name && (
           <p className="text-right">
             <button
-              class="btn-link"
+              className="btn-link"
               onClick={() => dispatch({ type: "usernameModal", value: true })}
             >
               {appState.formUser.name}
