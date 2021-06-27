@@ -56,7 +56,7 @@ input, textarea, select {
 
 label {
   white-space: nowrap;
-  padding-right: 5px
+  /*padding-right: 5px*/
 }
 
 .red {

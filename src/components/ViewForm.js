@@ -175,24 +175,34 @@ function ViewForm() {
                     required={q.is_required}
                   ></textarea>
                 )}
-                {q.question_type === "radio" &&
-                  q.question_options.map((qo) => {
-                    return (
-                      <label key={qo._id}>
-                        <input type="radio" value={qo.id} name={q._id} />{" "}
-                        {qo.title}
-                      </label>
-                    );
-                  })}
-                {q.question_type === "checkbox" &&
-                  q.question_options.map((qo) => {
-                    return (
-                      <label key={qo._id}>
-                        <input type="checkbox" value={qo.id} name={q._id} />{" "}
-                        {qo.title}
-                      </label>
-                    );
-                  })}
+                {q.question_type === "radio" && (
+                  <div className="row">
+                    {q.question_options.map((qo) => {
+                      return (
+                        <div key={qo._id} className="col c3">
+                          <label>
+                            <input type="radio" value={qo.id} name={q._id} />{" "}
+                            {qo.title}
+                          </label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                {q.question_type === "checkbox" && (
+                  <div className="row">
+                    {q.question_options.map((qo) => {
+                      return (
+                        <div key={qo._id} className="col c3">
+                          <label>
+                            <input type="checkbox" value={qo.id} name={q._id} />{" "}
+                            {qo.title}
+                          </label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
                 {q.question_type === "dropdown" && (
                   <select className="w-100">
                     {q.question_options.map((qo) => {
