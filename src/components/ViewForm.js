@@ -49,12 +49,60 @@ function ViewForm() {
       case "setUsername":
         draft.username = action.value;
         return;
+      case "emptyAnswers":
+        draft.answers = action.value;
+        return;
+      case "addAnswer":
+        const index = draft.answers.findIndex((a) => a.question === action.qid);
+        if (index === -1) {
+          return;
+        }
+        if (action.qtype === "simple_text" || action.qtype === "large_text") {
+          draft.answers[index]["answer_text"] = action.value;
+        } else if (action.qtype === "radio" || action.qtype === "dropdown") {
+          draft.answers[index]["answer_single_option"] = action.value;
+        } else if (action.qtype === "checkbox") {
+          const optIndex = draft.answers[index][
+            "answer_multiple_option"
+          ].indexOf(action.value);
+          if (optIndex === -1) {
+            draft.answers[index]["answer_multiple_option"].push(action.value);
+          } else {
+            // we remove it
+            draft.answers[index]["answer_multiple_option"].splice(optIndex, 1);
+          }
+        }
+        return;
       default:
         return;
     }
   };
 
   const [state, dispatch] = useImmerReducer(viewFormReducer, initialState);
+
+  const makeEmptyAnswers = (questions) => {
+    const answers = [];
+    for (const q of questions) {
+      let qObj = {
+        question: q._id,
+      };
+      if (
+        q.question_type === "simple_text" ||
+        q.question_type === "large_text"
+      ) {
+        qObj.answer_text = "";
+      } else if (
+        q.question_type === "radio" ||
+        q.question_type === "dropdown"
+      ) {
+        qObj.answer_single_option = "";
+      } else if (q.question_type === "checkbox") {
+        qObj.answer_multiple_option = [];
+      }
+      answers.push(qObj);
+    }
+    return answers;
+  };
 
   useEffect(() => {
     if (!state.username) {
@@ -78,6 +126,11 @@ function ViewForm() {
         dispatch({
           type: "formFound",
           value: formInfo.data,
+        });
+        const emptyAns = makeEmptyAnswers(formInfo.data.questions);
+        dispatch({
+          type: "emptyAnswers",
+          value: emptyAns,
         });
       } catch (e) {
         dispatch({
@@ -170,6 +223,14 @@ function ViewForm() {
                     type="text"
                     className="smooth w-100"
                     required={q.is_required}
+                    onChange={(e) =>
+                      dispatch({
+                        type: "addAnswer",
+                        value: e.target.value,
+                        qtype: "simple_text",
+                        qid: q._id,
+                      })
+                    }
                   />
                 )}
                 {q.question_type === "large_text" && (
@@ -177,6 +238,14 @@ function ViewForm() {
                     rows="3"
                     className="smooth w-100"
                     required={q.is_required}
+                    onChange={(e) =>
+                      dispatch({
+                        type: "addAnswer",
+                        value: e.target.value,
+                        qtype: "large_text",
+                        qid: q._id,
+                      })
+                    }
                   ></textarea>
                 )}
                 {q.question_type === "radio" && (
@@ -185,7 +254,19 @@ function ViewForm() {
                       return (
                         <div key={qo._id} className="col c3">
                           <label>
-                            <input type="radio" value={qo.id} name={q._id} />{" "}
+                            <input
+                              type="radio"
+                              value={qo._id}
+                              name={q._id}
+                              onChange={() =>
+                                dispatch({
+                                  type: "addAnswer",
+                                  value: qo._id,
+                                  qtype: "radio",
+                                  qid: q._id,
+                                })
+                              }
+                            />{" "}
                             {qo.title}
                           </label>
                         </div>
@@ -199,7 +280,19 @@ function ViewForm() {
                       return (
                         <div key={qo._id} className="col c3">
                           <label>
-                            <input type="checkbox" value={qo.id} name={q._id} />{" "}
+                            <input
+                              type="checkbox"
+                              value={qo.id}
+                              name={q._id}
+                              onChange={() =>
+                                dispatch({
+                                  type: "addAnswer",
+                                  value: qo._id,
+                                  qtype: "checkbox",
+                                  qid: q._id,
+                                })
+                              }
+                            />{" "}
                             {qo.title}
                           </label>
                         </div>
@@ -208,7 +301,17 @@ function ViewForm() {
                   </div>
                 )}
                 {q.question_type === "dropdown" && (
-                  <select className="w-100">
+                  <select
+                    className="w-100"
+                    onChange={(e) =>
+                      dispatch({
+                        type: "addAnswer",
+                        value: e.target.value,
+                        qtype: "dropdown",
+                        qid: q._id,
+                      })
+                    }
+                  >
                     {q.question_options.map((qo) => {
                       return <option key={qo._id}>{qo.title}</option>;
                     })}
