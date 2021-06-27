@@ -8,7 +8,7 @@ import Page from "./Page";
 import DispatchContext from "../DispatchContext";
 import StateContext from "../StateContext";
 import { apiGetForm } from "../services/api";
-import { getAxiosError } from "../services/utils";
+import { getAxiosError, getRandomString } from "../services/utils";
 
 function ViewForm() {
   // TODO: add state and bind view to state
@@ -18,11 +18,13 @@ function ViewForm() {
   const { form_uri } = useParams();
 
   const initialState = {
-    username: "", // the person who responds to the form and not the person who made it!
+    username: appState.formUser.name, // the person who responds to the form and not the person who made it!
     answers: [],
     formFound: true, // will be changed once the api call to backend is done
     formInfo: null,
     formUri: form_uri,
+    showUsernameModal: !Boolean(appState.formUser.name),
+    suggestedUsername: appState.formUser.name || getRandomString(6),
   };
 
   const viewFormReducer = (draft, action) => {
@@ -34,12 +36,32 @@ function ViewForm() {
       case "formNotFound":
         draft.formFound = false;
         return;
+      case "usernameModal":
+        // dont close the modal, if the username is not given
+        if (!action.value && !draft.suggestedUsername) {
+          return;
+        }
+        draft.showUsernameModal = action.value;
+        return;
+      case "suggestedUsername":
+        draft.suggestedUsername = action.value;
+        return;
       default:
         return;
     }
   };
 
   const [state, dispatch] = useImmerReducer(viewFormReducer, initialState);
+
+  useEffect(() => {
+    if (!state.username) {
+      dispatch({ type: "usernameModal", value: true });
+    }
+    if (state.suggestedUsername) {
+      appDispatch({ type: "formUser", value: state.suggestedUsername });
+    }
+    return;
+  }, [state.username, state.suggestedUsername, appDispatch, dispatch]);
 
   useEffect(() => {
     const request = axios.CancelToken.source();
@@ -75,9 +97,63 @@ function ViewForm() {
   ) : (
     state.formInfo && (
       <Page title={state.formInfo.title}>
+        {state.showUsernameModal && (
+          <div className="modal">
+            <div className="modal-content">
+              <span
+                class="modal-close-btn"
+                onClick={() =>
+                  dispatch({ type: "usernameModal", value: false })
+                }
+              >
+                &times;
+              </span>
+              <h3>A random name</h3>
+              <p>
+                Hey! Inorder to prevent you from accidentally submitting a form
+                more than once, we need to give you a name. This is totally{" "}
+                <strong>random</strong> and is <u>kept in your browser</u>.
+              </p>
+              <p>
+                If you don't like the name, go ahead and change it to something
+                else.
+              </p>
+              <input
+                type="text"
+                className="w-100"
+                value={state.suggestedUsername}
+                onChange={(e) =>
+                  dispatch({ type: "suggestedUsername", value: e.target.value })
+                }
+              />
+              <div className="m-t-sm">
+                <button
+                  className="btn btn-sm btn-b"
+                  onClick={() =>
+                    dispatch({ type: "usernameModal", value: false })
+                  }
+                >
+                  Use this name
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {appState.formUser.name && (
+          <p className="text-right">
+            <button
+              class="btn-link"
+              onClick={() => dispatch({ type: "usernameModal", value: true })}
+            >
+              {appState.formUser.name}
+            </button>
+          </p>
+        )}
+
         <h2>{state.formInfo.title}</h2>
         <p>{state.formInfo.description}</p>
-        <form>
+        <form className="w-100">
           {state.formInfo.questions.map((q, index) => {
             return (
               <div className="w-100" key={q._id}>

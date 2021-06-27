@@ -11,6 +11,8 @@ import {
   getAuthorToken,
   putAuthorToken,
   delAuthorToken,
+  putAppUsername,
+  delAppUsername,
 } from "./services/storage";
 import { apiGetUser, setAuthHeader, apiLogout } from "./services/api";
 import { getAxiosError } from "./services/utils";
@@ -61,6 +63,9 @@ function App() {
         return;
       case "formAuthor":
         draft.formAuthor.user = action.value;
+        return;
+      case "formUser":
+        draft.formUser.name = action.value;
         return;
       case "alertMessage":
         draft.alertMessages.push({
@@ -155,6 +160,14 @@ function App() {
       delAuthorToken();
     }
   }, [state.isLoggedIn, state.formAuthor.token, dispatch]);
+
+  useEffect(() => {
+    if (state.formUser.name) {
+      putAppUsername(state.formUser.name);
+    } else {
+      delAppUsername();
+    }
+  }, [state.formUser.name]);
 
   return (
     <StateContext.Provider value={state}>
