@@ -12,6 +12,7 @@ function Dashboard() {
   const [forms, setForms] = useState([]);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const request = axios.CancelToken.source();
@@ -22,9 +23,9 @@ function Dashboard() {
           page,
           req_cancel_token: request.token,
         });
-        // TODO: pagination
         setForms(response.data.forms);
         setCount(response.data.count);
+        setTotalPages(response.data.total_pages);
       } catch (e) {
         appDispatch({
           type: "alertMessage",
@@ -40,7 +41,12 @@ function Dashboard() {
 
   // TODO: duh!
   function changePage(nextOrPrev) {
-    setPage(1);
+    if (nextOrPrev === "p" && page !== 1) {
+      setPage(page - 1);
+    }
+    if (nextOrPrev === "n" && page < totalPages) {
+      setPage(page + 1);
+    }
   }
 
   return (
@@ -61,16 +67,22 @@ function Dashboard() {
               <tr key={form.uuid}>
                 <td>{index + 1}</td>
                 <td>
-                  <Link to={`/${form.uri}`}>{form.title}</Link> -{" "}
-                  <small>2021/02/09</small>
+                  <span>{form.title}</span> -{" "}
+                  <small>
+                    <code>2021/02/09</code>
+                  </small>
                 </td>
                 <td>
                   <Link to={`/${form.uri}`}>{form.uri}</Link>
                 </td>
                 <td>
-                  <Link to={`/${form.uri}/responses`}>
-                    {form.response_count}
-                  </Link>
+                  {form.response_count > 0 ? (
+                    <Link to={`/${form.uri}/responses`}>
+                      {form.response_count}
+                    </Link>
+                  ) : (
+                    <span>{form.response_count}</span>
+                  )}
                 </td>
               </tr>
             );
@@ -79,13 +91,17 @@ function Dashboard() {
       </table>
       <div className="row m-y-sm">
         <div className="col c6">
-          <button className="btn-link" onClick={() => changePage("p")}>
-            &lt;Prev
-          </button>{" "}
-          Page {page} of 3{" "}
-          <button className="btn-link" onClick={() => changePage("n")}>
-            Next&gt;
-          </button>
+          {page > 1 && (
+            <button className="btn-link" onClick={() => changePage("p")}>
+              &lt;Prev&nbsp;
+            </button>
+          )}
+          Page {page} of {totalPages + " "}
+          {page < totalPages && (
+            <button className="btn-link" onClick={() => changePage("n")}>
+              Next&gt;
+            </button>
+          )}
         </div>
         <div className="col c6">{count} forms in total</div>
       </div>

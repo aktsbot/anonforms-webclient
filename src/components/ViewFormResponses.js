@@ -10,7 +10,7 @@ function ViewFormResponses() {
         <thead>
           <tr>
             <th>#</th>
-            <th>Response from &plus; date YYYY/MM/DD</th>
+            <th>Response from + date YYYY/MM/DD</th>
             <th>Attempted</th>
           </tr>
         </thead>
