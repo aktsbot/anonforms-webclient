@@ -88,3 +88,20 @@ export const apiSubmitFormResponse = ({
     )
     .then((res) => res.data);
 };
+
+export const apiGetFormResponseList = ({
+  form_uri,
+  page,
+  req_cancel_token,
+}) => {
+  const params = {
+    page: 1,
+  };
+  if (page) {
+    params.page = page;
+  }
+
+  return http
+    .get(`/response/${form_uri}`, { params }, { cancelToken: req_cancel_token })
+    .then((res) => res.data);
+};
