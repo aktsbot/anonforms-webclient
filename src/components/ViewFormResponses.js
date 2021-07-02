@@ -10,7 +10,7 @@ import { getAxiosError, makeFormattedDate } from "../services/utils";
 function ViewFormResponses() {
   const { form_uri } = useParams();
   const appDispatch = useContext(DispatchContext);
-  const [formInfo, setFormInfo] = useState(null);
+  const [formInfo, setFormInfo] = useState({ title: "..." });
   const [formResponses, setFormResponses] = useState([]);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
@@ -53,8 +53,8 @@ function ViewFormResponses() {
   }
 
   return (
-    <Page title="IPHACON Registration form responses" showHeader={true}>
-      <h1 className="head-underline">IPHACON Registration form responses</h1>
+    <Page title={`${formInfo.title} responses`} showHeader={true}>
+      <h1 className="head-underline">{`${formInfo.title} responses`}</h1>
 
       <table className="table">
         <thead>
