@@ -4,7 +4,10 @@ import { useParams } from "react-router-dom";
 import Page from "./Page";
 
 import DispatchContext from "../DispatchContext";
-import { apiGetFormResponseList } from "../services/api";
+import {
+  apiGetFormResponseList,
+  apiGetFormResponsesCSV,
+} from "../services/api";
 import { getAxiosError, makeFormattedDate } from "../services/utils";
 
 function ViewFormResponses() {
@@ -15,6 +18,7 @@ function ViewFormResponses() {
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [downloadCSV, setDownloadCSV] = useState(0);
 
   useEffect(() => {
     const request = axios.CancelToken.source();
@@ -42,6 +46,49 @@ function ViewFormResponses() {
     fetchFormResponses();
     return () => request.cancel();
   }, [appDispatch, page, form_uri]);
+
+  useEffect(() => {
+    const request = axios.CancelToken.source();
+    async function download() {
+      try {
+        const response = await apiGetFormResponsesCSV({
+          form_uri,
+          req_cancel_token: request.token,
+        });
+        const fileName =
+          formInfo.title.toLowerCase().replace(/ /g, "-") + ".csv";
+        if (!window.navigator.msSaveOrOpenBlob) {
+          // BLOB NAVIGATOR
+          const url = window.URL.createObjectURL(new Blob([response]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", fileName);
+          document.body.appendChild(link);
+          link.click();
+        } else {
+          // BLOB FOR EXPLORER 11
+          window.navigator.msSaveOrOpenBlob(new Blob([response]), fileName);
+        }
+      } catch (e) {
+        appDispatch({
+          type: "alertMessage",
+          value: getAxiosError(e),
+          message_type: "danger",
+          heading: "Error",
+        });
+        setDownloadCSV(0);
+      }
+    }
+
+    if (downloadCSV) {
+      download();
+    }
+
+    return () => {
+      setDownloadCSV(0);
+      request.cancel();
+    };
+  }, [downloadCSV, form_uri, appDispatch, formInfo.title]);
 
   function changePage(nextOrPrev) {
     if (nextOrPrev === "p" && page !== 1) {
@@ -100,7 +147,10 @@ function ViewFormResponses() {
         </div>
         <div className="col c4">{count} total responses</div>
         <div className="col c4">
-          <button className="btn btn-sm btn-a">
+          <button
+            className="btn btn-sm btn-a"
+            onClick={() => setDownloadCSV(1)}
+          >
             Download responses as csv file
           </button>
         </div>
