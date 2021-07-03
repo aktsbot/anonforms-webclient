@@ -69,6 +69,7 @@ function ViewFormResponses() {
           // BLOB FOR EXPLORER 11
           window.navigator.msSaveOrOpenBlob(new Blob([response]), fileName);
         }
+        setDownloadCSV(0);
       } catch (e) {
         appDispatch({
           type: "alertMessage",
@@ -149,7 +150,11 @@ function ViewFormResponses() {
         <div className="col c4">
           <button
             className="btn btn-sm btn-a"
-            onClick={() => setDownloadCSV(1)}
+            onClick={() => {
+              if (downloadCSV === 0) {
+                setDownloadCSV(1);
+              }
+            }}
           >
             Download responses as csv file
           </button>
