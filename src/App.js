@@ -29,6 +29,7 @@ import ViewForm from "./components/ViewForm";
 import NotFound from "./components/NotFound";
 import AlertMessages from "./components/AlertMessages";
 const Dashboard = React.lazy(() => import("./components/Dashboard"));
+const Account = React.lazy(() => import("./components/Account"));
 const NewForm = React.lazy(() => import("./components/NewForm"));
 const ViewFormResponses = React.lazy(() =>
   import("./components/ViewFormResponses")
@@ -178,6 +179,7 @@ function App() {
             <Switch>
               <Route path="/auth" exact component={Auth} />
               <PrivateRoute path="/dashboard" exact component={Dashboard} />
+              <PrivateRoute path="/account" exact component={Account} />
               <PrivateRoute path="/new-form" exact component={NewForm} />
               <PrivateRoute
                 path="/:form_uri/responses"
