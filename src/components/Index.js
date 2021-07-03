@@ -38,7 +38,7 @@ function Index() {
               <li>Power to the users. Run your own instance of anonforms!</li>
               <li>
                 Check out the{" "}
-                <a href="//github.com/aktsbot/anonforms-server/documentation.md">
+                <a href="https://github.com/aktsbot/anonforms-server/blob/main/README.md">
                   installation guide
                 </a>
                 .
