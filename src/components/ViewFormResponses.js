@@ -57,6 +57,7 @@ function ViewFormResponses() {
         });
         const fileName =
           formInfo.title.toLowerCase().replace(/ /g, "-") + ".csv";
+        // https://stackoverflow.com/questions/43432892/force-download-get-request-using-axios
         if (!window.navigator.msSaveOrOpenBlob) {
           // BLOB NAVIGATOR
           const url = window.URL.createObjectURL(new Blob([response]));

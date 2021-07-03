@@ -79,6 +79,9 @@ function ViewForm() {
       case "submitForm":
         draft.submitCount += 1;
         return;
+      case "resetSubmit":
+        draft.submitCount = 0;
+        return;
       case "formSubmitted":
         draft.isFormSubmitted = true;
         return;
@@ -181,6 +184,7 @@ function ViewForm() {
           message_type: "danger",
           heading: "Error",
         });
+        dispatch({ type: "resetSubmit" });
       }
     }
 
