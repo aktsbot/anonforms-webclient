@@ -11,17 +11,13 @@ import {
 } from "../services/api";
 import { getAxiosError, makeFormattedDateTime } from "../services/utils";
 import DispatchContext from "../DispatchContext";
-import StateContext from "../StateContext";
 
 function Account() {
   const appDispatch = useContext(DispatchContext);
-  const appState = useContext(StateContext);
 
   const initialState = {
     sessions: [],
     sessionToDelete: null,
-    showAccountDelete: false,
-    confirmDelete: false,
     accountDeleteText: "Delete my account",
     confirmDeleteText: "",
     formAuthorInfo: {
@@ -37,6 +33,16 @@ function Account() {
         return;
       case "formAuthorInfo":
         draft.formAuthorInfo = action.value;
+        return;
+      case "sessionToDelete":
+        draft.sessionToDelete = action.value;
+        return;
+      case "sessionDeleted":
+        const sessionToDelete = draft.sessionToDelete;
+        draft.sessions = draft.sessions.filter(
+          (s) => s.session_token !== sessionToDelete
+        );
+        draft.sessionToDelete = null;
         return;
       default:
         return;
@@ -70,7 +76,40 @@ function Account() {
     }
 
     getUser();
-  }, []);
+
+    return () => request.cancel();
+  }, [appDispatch]);
+
+  useEffect(() => {
+    const request = axios.CancelToken.source();
+
+    async function deleteSession() {
+      try {
+        await apiRemoveSession({
+          session_token: state.sessionToDelete,
+          req_cancel_token: request.token,
+        });
+        appDispatch({
+          type: "alertMessage",
+          value: "Session has been removed",
+          message_type: "success",
+          heading: "Success!",
+        });
+        dispatch({ type: "sessionDeleted" });
+      } catch (e) {
+        appDispatch({
+          type: "alertMessage",
+          value: getAxiosError(e),
+          message_type: "danger",
+          heading: "Error",
+        });
+      }
+    }
+
+    if (state.sessionToDelete) {
+      deleteSession();
+    }
+  }, [state.sessionToDelete, appDispatch, dispatch]);
 
   return (
     <Page title="Account" showHeader={true}>
@@ -109,7 +148,17 @@ function Account() {
                   {s.is_current ? (
                     <small>Current</small>
                   ) : (
-                    <button className="btn-link">Remove this session</button>
+                    <button
+                      className="btn-link"
+                      onClick={() =>
+                        dispatch({
+                          type: "sessionToDelete",
+                          value: s.session_token,
+                        })
+                      }
+                    >
+                      Remove this session
+                    </button>
                   )}
                 </td>
               </tr>
