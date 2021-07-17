@@ -52,6 +52,13 @@ function Dashboard() {
   return (
     <Page title="Your dashboard" showHeader={true}>
       <h1 className="head-underline">Dashboard</h1>
+      {forms.length === 0 && (
+        <div className="msg">
+          Forms that you make will be listed here. Create a form by visiting{" "}
+          <Link to="new-form">New form</Link> on the navigation menu.
+        </div>
+      )}
+
       <table className="table">
         <thead>
           <tr>
