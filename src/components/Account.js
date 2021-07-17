@@ -20,6 +20,7 @@ function Account() {
     sessionToDelete: null,
     accountDeleteText: "Delete my account",
     confirmDeleteText: "",
+    deleteAccount: false,
     formAuthorInfo: {
       uuid: "",
       createdAt: "",
@@ -43,6 +44,12 @@ function Account() {
           (s) => s.session_token !== sessionToDelete
         );
         draft.sessionToDelete = null;
+        return;
+      case "deleteAccount":
+        draft.deleteAccount = true;
+        return;
+      case "confirmDeleteText":
+        draft.confirmDeleteText = action.value;
         return;
       default:
         return;
@@ -78,7 +85,7 @@ function Account() {
     getUser();
 
     return () => request.cancel();
-  }, [appDispatch]);
+  }, [appDispatch, dispatch]);
 
   useEffect(() => {
     const request = axios.CancelToken.source();
@@ -110,6 +117,37 @@ function Account() {
       deleteSession();
     }
   }, [state.sessionToDelete, appDispatch, dispatch]);
+
+  useEffect(() => {
+    const request = axios.CancelToken.source();
+
+    async function deleteAccount() {
+      try {
+        await apiRemoveAccount({
+          session_token: state.sessionToDelete,
+          req_cancel_token: request.token,
+        });
+        appDispatch({
+          type: "alertMessage",
+          value: "Your account has been deleted",
+          message_type: "success",
+          heading: "Success!",
+        });
+        appDispatch({ type: "logout" });
+      } catch (e) {
+        appDispatch({
+          type: "alertMessage",
+          value: getAxiosError(e),
+          message_type: "danger",
+          heading: "Error",
+        });
+      }
+    }
+
+    if (state.deleteAccount) {
+      deleteAccount();
+    }
+  }, [state.deleteAccount, appDispatch, state.sessionToDelete]);
 
   return (
     <Page title="Account" showHeader={true}>
@@ -177,11 +215,19 @@ function Account() {
         To delete your account enter{" "}
         <strong>"{state.accountDeleteText}"</strong> below.
       </p>
-      <input type="text" className="smooth w-100" placeholder="Type it here" />
+      <input
+        type="text"
+        onChange={(e) =>
+          dispatch({ type: "confirmDeleteText", value: e.target.value })
+        }
+        className="smooth w-100"
+        placeholder="Type it here"
+      />
       <div className="m-y-sm">
         <button
           className="btn btn-sm btn-c"
           disabled={state.accountDeleteText !== state.confirmDeleteText}
+          onClick={() => dispatch({ type: "deleteAccount" })}
         >
           Delete account
         </button>
