@@ -44,6 +44,24 @@ export const apiGetUser = ({ req_cancel_token }) => {
     .then((res) => res.data);
 };
 
+// remove a session
+export const apiRemoveSession = ({ session_token, req_cancel_token }) => {
+  return http
+    .delete(
+      `/user/session/${session_token}`,
+      {},
+      { cancelToken: req_cancel_token }
+    )
+    .then((res) => res.data);
+};
+
+// removes an account
+export const apiRemoveAccount = ({ req_cancel_token }) => {
+  return http
+    .delete("/user/account", {}, { cancelToken: req_cancel_token })
+    .then((res) => res.data);
+};
+
 // logout - devalidates a session token
 export const apiLogout = () => {
   return http.post("/user/logout", {});

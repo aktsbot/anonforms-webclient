@@ -109,6 +109,11 @@ label {
   text-decoration: none;
 }
 
+.warning {
+  border-color: #e44;
+  background: #fdd;
+}
+
 /* https://www.w3schools.com/howto/howto_js_alert.asp */
 .alert {
   padding: 5px;

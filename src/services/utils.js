@@ -38,3 +38,19 @@ export const makeFormattedDate = (date) => {
     d.getDate();
   return dateString;
 };
+
+// https://stackoverflow.com/questions/8362952/javascript-output-current-datetime-in-yyyy-mm-dd-hhmsec-format
+export const makeFormattedDateTime = (date) => {
+  if (!date) {
+    return "";
+  }
+  const d = new Date(date);
+  const offsetMs = d.getTimezoneOffset() * 60 * 1000;
+  const dateLocal = new Date(d.getTime() - offsetMs);
+  const str = dateLocal
+    .toISOString()
+    .slice(0, 19)
+    .replace(/-/g, "/")
+    .replace("T", " ");
+  return str;
+};
