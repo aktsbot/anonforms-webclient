@@ -90,19 +90,21 @@ function Dashboard() {
         </tbody>
       </table>
       <div className="row m-y-sm">
-        <div className="col c6">
-          {page > 1 && (
-            <button className="btn-link" onClick={() => changePage("p")}>
-              &lt;Prev&nbsp;
-            </button>
-          )}
-          Page {page} of {totalPages + " "}
-          {page < totalPages && (
-            <button className="btn-link" onClick={() => changePage("n")}>
-              Next&gt;
-            </button>
-          )}
-        </div>
+        {totalPages > 0 && (
+          <div className="col c6">
+            {page > 1 && (
+              <button className="btn-link" onClick={() => changePage("p")}>
+                &lt;Prev&nbsp;
+              </button>
+            )}
+            Page {page} of {totalPages + " "}
+            {page < totalPages && (
+              <button className="btn-link" onClick={() => changePage("n")}>
+                Next&gt;
+              </button>
+            )}
+          </div>
+        )}
         <div className="col c6">{count} forms in total</div>
       </div>
     </Page>
