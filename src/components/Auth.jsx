@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { useImmerReducer } from "use-immer";
 import axios from "axios";
-import { Redirect } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import Page from "./Page";
 import DispatchContext from "../DispatchContext";
@@ -165,7 +165,7 @@ function Auth() {
   };
 
   return appState.isLoggedIn ? (
-    <Redirect to="/dashboard" />
+    <Navigate to="/dashboard" />
   ) : (
     <Page title="Authentication">
       <h2>Enter your email to authenticate</h2>

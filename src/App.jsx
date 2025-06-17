@@ -1,9 +1,9 @@
 import React, { useEffect, Suspense } from "react";
-import { BrowserRouter, Switch, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useImmerReducer } from "use-immer";
 import axios from "axios";
 
-import PrivateRoute from "./PrivateRoute";
+import RequireAuth from "./RequireAuth";
 
 // services
 import {
@@ -176,20 +176,49 @@ function App() {
         <BrowserRouter>
           <AlertMessages messages={state.alertMessages} />
           <Suspense fallback={<Loading />}>
-            <Switch>
-              <Route path="/auth" exact component={Auth} />
-              <PrivateRoute path="/dashboard" exact component={Dashboard} />
-              <PrivateRoute path="/account" exact component={Account} />
-              <PrivateRoute path="/new-form" exact component={NewForm} />
-              <PrivateRoute
-                path="/:form_uri/responses"
+            <Routes>
+              <Route path="/auth" exact element={<Auth />} />
+              {/* protected */}
+              <Route
                 exact
-                component={ViewFormResponses}
+                path="/dashboard"
+                element={
+                  <RequireAuth>
+                    <Dashboard />
+                  </RequireAuth>
+                }
               />
-              <Route path="/:form_uri" exact component={ViewForm} />
-              <Route path="/" exact component={Index} />
-              <Route component={NotFound} />
-            </Switch>
+              <Route
+                exact
+                path="/account"
+                element={
+                  <RequireAuth>
+                    <Account />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                exact
+                path="/new-form"
+                element={
+                  <RequireAuth>
+                    <NewForm />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                exact
+                path="/:form_uri/responses"
+                element={
+                  <RequireAuth>
+                    <ViewFormResponses />
+                  </RequireAuth>
+                }
+              />
+              <Route exact path="/:form_uri" element={<ViewForm />} />
+              <Route path="/" exact element={<Index />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </Suspense>
         </BrowserRouter>
       </DispatchContext.Provider>

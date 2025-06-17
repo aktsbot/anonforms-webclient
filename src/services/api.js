@@ -5,7 +5,7 @@ const __BASE_API_ROUTE__ = "/api/v1";
 // this is exported as the auth component uses this to set
 // the authorization token afterwards
 const http = axios.create({
-  baseURL: process.env.REACT_APP_API + __BASE_API_ROUTE__,
+  baseURL: import.meta.env.VITE_APP_API + __BASE_API_ROUTE__,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
