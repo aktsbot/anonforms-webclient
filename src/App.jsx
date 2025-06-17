@@ -69,12 +69,14 @@ function App() {
         draft.formUser.name = action.value;
         return;
       case "alertMessage":
-        draft.alertMessages.push({
-          type: action.message_type,
-          message: action.value,
-          heading: action.heading || null,
-        });
-        draft.scrollToTop = true;
+        if (action.value) {
+          draft.alertMessages.push({
+            type: action.message_type,
+            message: action.value,
+            heading: action.heading || null,
+          });
+          draft.scrollToTop = true;
+        }
         return;
       case "alertMessageClear":
         if (action.value === -1) {
@@ -119,6 +121,9 @@ function App() {
         //console.log(response.data);
         dispatch({ type: "formAuthor", value: response.data.user });
       } catch (e) {
+        if (axios.isCancel(e)) {
+          return;
+        }
         dispatch({
           type: "alertMessage",
           value: getAxiosError(e),
