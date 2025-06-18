@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import Page from "./Page";
 
 import DispatchContext from "../DispatchContext";
@@ -105,6 +105,23 @@ function ViewFormResponses() {
     <Page title={`${formInfo.title} responses`} showHeader={true}>
       <h1 className="head-underline">{`${formInfo.title} responses`}</h1>
 
+      <div className="row text-right">
+        <Link className="btn-link" to={`/${form_uri}/responses/sheet`}>
+          View all responses
+        </Link>{" "}
+        |{" "}
+        <button
+          className="btn-link"
+          onClick={() => {
+            if (downloadCSV === 0) {
+              setDownloadCSV(1);
+            }
+          }}
+        >
+          Download responses as csv file
+        </button>
+      </div>
+
       <table className="table">
         <thead>
           <tr>
@@ -134,7 +151,7 @@ function ViewFormResponses() {
       </table>
 
       <div className="row">
-        <div className="col c4">
+        <div className="col c6">
           {page > 1 && (
             <button className="btn-link" onClick={() => changePage("p")}>
               &lt;Prev&nbsp;
@@ -147,19 +164,7 @@ function ViewFormResponses() {
             </button>
           )}
         </div>
-        <div className="col c4">{count} total responses</div>
-        <div className="col c4">
-          <button
-            className="btn btn-sm btn-a"
-            onClick={() => {
-              if (downloadCSV === 0) {
-                setDownloadCSV(1);
-              }
-            }}
-          >
-            Download responses as csv file
-          </button>
-        </div>
+        <div className="col c6 text-right">{count} total responses</div>
       </div>
     </Page>
   );

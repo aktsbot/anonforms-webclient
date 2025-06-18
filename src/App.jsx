@@ -34,6 +34,9 @@ const NewForm = React.lazy(() => import("./components/NewForm"));
 const ViewFormResponses = React.lazy(() =>
   import("./components/ViewFormResponses")
 );
+const ViewFormResponsesSheet = React.lazy(() =>
+  import("./components/ViewFormResponsesSheet")
+);
 
 function App() {
   const appState = {
@@ -217,6 +220,15 @@ function App() {
                 element={
                   <RequireAuth>
                     <ViewFormResponses />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                exact
+                path="/:form_uri/responses/sheet"
+                element={
+                  <RequireAuth>
+                    <ViewFormResponsesSheet />
                   </RequireAuth>
                 }
               />
