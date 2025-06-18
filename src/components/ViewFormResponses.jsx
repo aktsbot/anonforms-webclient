@@ -107,7 +107,7 @@ function ViewFormResponses() {
 
       <div className="row text-right">
         <Link className="btn-link" to={`/${form_uri}/responses/sheet`}>
-          View all responses
+          View responses
         </Link>{" "}
         |{" "}
         <button
@@ -118,7 +118,7 @@ function ViewFormResponses() {
             }
           }}
         >
-          Download responses as csv file
+          Download responses
         </button>
       </div>
 
