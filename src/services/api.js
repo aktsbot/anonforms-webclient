@@ -135,3 +135,9 @@ export const apiGetFormResponsesCSV = ({ form_uri, req_cancel_token }) => {
     )
     .then((res) => res.data);
 };
+
+export const apiGetFormResponsesJSON = ({ form_uri, req_cancel_token }) => {
+  return http
+    .get(`/response/${form_uri}/json`, {}, { cancelToken: req_cancel_token })
+    .then((res) => res.data);
+};
