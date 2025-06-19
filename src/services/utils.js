@@ -1,5 +1,11 @@
+import axios from "axios";
+
 // https://github.com/axios/axios#handling-errors
 export const getAxiosError = (e) => {
+  if (axios.isCancel(e)) {
+    return ""; // empty string will prevent the message from being added to alert messages context
+  }
+
   let message = "Unknown error while contacting service";
   if (e.response) {
     // Request made and server responded

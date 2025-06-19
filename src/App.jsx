@@ -1,9 +1,9 @@
 import React, { useEffect, Suspense } from "react";
-import { BrowserRouter, Switch, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useImmerReducer } from "use-immer";
 import axios from "axios";
 
-import PrivateRoute from "./PrivateRoute";
+import RequireAuth from "./RequireAuth";
 
 // services
 import {
@@ -33,6 +33,9 @@ const Account = React.lazy(() => import("./components/Account"));
 const NewForm = React.lazy(() => import("./components/NewForm"));
 const ViewFormResponses = React.lazy(() =>
   import("./components/ViewFormResponses")
+);
+const ViewFormResponsesSheet = React.lazy(() =>
+  import("./components/ViewFormResponsesSheet")
 );
 
 function App() {
@@ -69,12 +72,14 @@ function App() {
         draft.formUser.name = action.value;
         return;
       case "alertMessage":
-        draft.alertMessages.push({
-          type: action.message_type,
-          message: action.value,
-          heading: action.heading || null,
-        });
-        draft.scrollToTop = true;
+        if (action.value) {
+          draft.alertMessages.push({
+            type: action.message_type,
+            message: action.value,
+            heading: action.heading || null,
+          });
+          draft.scrollToTop = true;
+        }
         return;
       case "alertMessageClear":
         if (action.value === -1) {
@@ -119,6 +124,9 @@ function App() {
         //console.log(response.data);
         dispatch({ type: "formAuthor", value: response.data.user });
       } catch (e) {
+        if (axios.isCancel(e)) {
+          return;
+        }
         dispatch({
           type: "alertMessage",
           value: getAxiosError(e),
@@ -176,20 +184,58 @@ function App() {
         <BrowserRouter>
           <AlertMessages messages={state.alertMessages} />
           <Suspense fallback={<Loading />}>
-            <Switch>
-              <Route path="/auth" exact component={Auth} />
-              <PrivateRoute path="/dashboard" exact component={Dashboard} />
-              <PrivateRoute path="/account" exact component={Account} />
-              <PrivateRoute path="/new-form" exact component={NewForm} />
-              <PrivateRoute
-                path="/:form_uri/responses"
+            <Routes>
+              <Route path="/auth" exact element={<Auth />} />
+              {/* protected */}
+              <Route
                 exact
-                component={ViewFormResponses}
+                path="/dashboard"
+                element={
+                  <RequireAuth>
+                    <Dashboard />
+                  </RequireAuth>
+                }
               />
-              <Route path="/:form_uri" exact component={ViewForm} />
-              <Route path="/" exact component={Index} />
-              <Route component={NotFound} />
-            </Switch>
+              <Route
+                exact
+                path="/account"
+                element={
+                  <RequireAuth>
+                    <Account />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                exact
+                path="/new-form"
+                element={
+                  <RequireAuth>
+                    <NewForm />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                exact
+                path="/:form_uri/responses"
+                element={
+                  <RequireAuth>
+                    <ViewFormResponses />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                exact
+                path="/:form_uri/responses/sheet"
+                element={
+                  <RequireAuth>
+                    <ViewFormResponsesSheet />
+                  </RequireAuth>
+                }
+              />
+              <Route exact path="/:form_uri" element={<ViewForm />} />
+              <Route path="/" exact element={<Index />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </Suspense>
         </BrowserRouter>
       </DispatchContext.Provider>

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import axios from "axios";
 import { useImmerReducer } from "use-immer";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import NotFound from "./NotFound";
 import Page from "./Page";
 
@@ -16,7 +16,7 @@ function ViewForm() {
   const appDispatch = useContext(DispatchContext);
   const appState = useContext(StateContext);
   const { form_uri } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate()
 
   const initialState = {
     username: appState.formUser.name, // the person who responds to the form and not the person who made it!
@@ -208,7 +208,7 @@ function ViewForm() {
 
   useEffect(() => {
     if (state.isFormSubmitted) {
-      history.push("/");
+      navigate("/");
     }
   }, [state.isFormSubmitted, history]);
 

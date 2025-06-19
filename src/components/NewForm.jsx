@@ -1,5 +1,5 @@
 import React, { useEffect, useContext, useMemo } from "react";
-import { Redirect } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useImmerReducer } from "use-immer";
 import axios from "axios";
 import Page from "./Page";
@@ -187,7 +187,7 @@ function NewForm() {
   ]);
 
   return state.isFormCreated ? (
-    <Redirect to="/dashboard" />
+    <Navigate to="/dashboard" />
   ) : (
     <Page title="Create your new form" showHeader={true}>
       <h1 className="head-underline">Create your new form</h1>

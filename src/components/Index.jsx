@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Redirect, Link } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 
 import StateContext from "../StateContext";
 import Page from "./Page";
@@ -8,7 +8,7 @@ function Index() {
   const appState = useContext(StateContext);
 
   return appState.isLoggedIn ? (
-    <Redirect to="/dashboard" />
+    <Navigate to="/dashboard" />
   ) : (
     <Page title="Build and share forms anonymously">
       <div className="text-center">
